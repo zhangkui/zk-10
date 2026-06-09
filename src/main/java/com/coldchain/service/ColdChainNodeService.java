@@ -14,6 +14,8 @@ public interface ColdChainNodeService {
 
     PageResult<ColdChainNode> page(PageQueryDTO dto);
 
+    PageResult<ColdChainNode> pageWithParams(Integer pageNum, Integer pageSize, String nodeName, String nodeType, Integer status);
+
     boolean save(ColdChainNode entity);
 
     boolean update(ColdChainNode entity);

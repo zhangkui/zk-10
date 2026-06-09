@@ -106,4 +106,9 @@ public class BatchServiceImpl extends ServiceImpl<BatchMapper, Batch> implements
     public Map<String, Object> getBatchDetail(Long id) {
         return baseMapper.selectBatchDetail(id);
     }
+
+    @Override
+    public List<Map<String, Object>> getBatchList() {
+        return baseMapper.selectBatchList();
+    }
 }

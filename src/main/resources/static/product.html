@@ -290,6 +290,7 @@
                 `).join('') || '<tr><td colspan="8" class="text-center text-muted">暂无数据</td></tr>';
             } catch (e) {
                 console.error('加载产品列表失败', e);
+                alert('加载产品列表失败：' + (e.response?.data?.message || e.message));
             }
         }
 
@@ -315,6 +316,7 @@
                 new bootstrap.Modal(document.getElementById('editModal')).show();
             } catch (e) {
                 console.error('加载产品详情失败', e);
+                alert('加载产品详情失败：' + (e.response?.data?.message || e.message));
             }
         }
 

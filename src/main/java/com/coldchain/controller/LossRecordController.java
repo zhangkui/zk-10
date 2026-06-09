@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @Api(tags = "损耗记录管理")
@@ -21,6 +22,12 @@ public class LossRecordController {
 
     @Autowired
     private LossRecordService lossRecordService;
+
+    @ApiOperation("获取所有损耗记录列表")
+    @GetMapping("/list")
+    public Result<List<Map<String, Object>>> list() {
+        return Result.success(lossRecordService.getLossList());
+    }
 
     @ApiOperation("分页查询损耗记录")
     @GetMapping("/page")
@@ -35,22 +42,22 @@ public class LossRecordController {
     }
 
     @ApiOperation("添加损耗记录")
-    @PostMapping
+    @PostMapping("/add")
     public Result<Boolean> save(@RequestBody LossRecordDTO dto) {
         boolean result = lossRecordService.addLossRecord(dto);
         return result ? Result.success(result) : Result.error("添加失败");
     }
 
     @ApiOperation("更新损耗记录")
-    @PutMapping
+    @PutMapping("/update")
     public Result<Boolean> update(@RequestBody LossRecord lossRecord) {
         boolean result = lossRecordService.update(lossRecord);
         return result ? Result.success(result) : Result.error("更新失败");
     }
 
     @ApiOperation("删除损耗记录")
-    @DeleteMapping("/{id}")
-    public Result<Boolean> delete(@ApiParam("损耗记录ID") @PathVariable Long id) {
+    @DeleteMapping("/delete")
+    public Result<Boolean> delete(@ApiParam("损耗记录ID") @RequestParam Long id) {
         boolean result = lossRecordService.delete(id);
         return result ? Result.success(result) : Result.error("删除失败");
     }

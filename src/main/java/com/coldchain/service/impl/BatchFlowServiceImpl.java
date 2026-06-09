@@ -100,4 +100,24 @@ public class BatchFlowServiceImpl extends ServiceImpl<BatchFlowMapper, BatchFlow
     public List<Map<String, Object>> getBatchFlowTrace(Long batchId) {
         return baseMapper.selectBatchFlowTrace(batchId);
     }
+
+    @Override
+    public List<Map<String, Object>> getFlowList(Long batchId) {
+        if (batchId != null) {
+            return baseMapper.selectFlowListByBatchId(batchId);
+        }
+        return baseMapper.selectFlowList();
+    }
+
+    @Override
+    public PageResult<Map<String, Object>> getFlowDetailPage(PageQueryDTO dto, Long batchId) {
+        Page<Map<String, Object>> page = new Page<>(dto.getPageNum(), dto.getPageSize());
+        LambdaQueryWrapper<BatchFlow> wrapper = new LambdaQueryWrapper<>();
+        if (batchId != null) {
+            wrapper.eq(BatchFlow::getBatchId, batchId);
+        }
+        wrapper.orderByDesc(BatchFlow::getOperateTime);
+        Page<Map<String, Object>> result = (Page<Map<String, Object>>) baseMapper.selectFlowDetailPage(page, wrapper);
+        return PageResult.of(result.getTotal(), result.getCurrent(), result.getSize(), result.getRecords());
+    }
 }

@@ -254,4 +254,9 @@ public class ResponsibilityAttributionServiceImpl extends ServiceImpl<Responsibi
         Page<Map<String, Object>> result = (Page<Map<String, Object>>) baseMapper.selectAttributionPage(page, wrapper);
         return PageResult.of(result.getTotal(), result.getCurrent(), result.getSize(), result.getRecords());
     }
+
+    @Override
+    public Map<String, Object> getAttributionDetail(Long id) {
+        return baseMapper.selectAttributionDetail(id);
+    }
 }

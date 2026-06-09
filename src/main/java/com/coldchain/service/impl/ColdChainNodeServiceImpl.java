@@ -42,7 +42,29 @@ public class ColdChainNodeServiceImpl extends ServiceImpl<ColdChainNodeMapper, C
     }
 
     @Override
+    public PageResult<ColdChainNode> pageWithParams(Integer pageNum, Integer pageSize, String nodeName, String nodeType, Integer status) {
+        Page<ColdChainNode> page = new Page<>(pageNum != null ? pageNum : 1, pageSize != null ? pageSize : 10);
+        LambdaQueryWrapper<ColdChainNode> wrapper = new LambdaQueryWrapper<>();
+        if (nodeName != null && !nodeName.isEmpty()) {
+            wrapper.like(ColdChainNode::getNodeName, nodeName);
+        }
+        if (nodeType != null && !nodeType.isEmpty()) {
+            wrapper.eq(ColdChainNode::getNodeType, nodeType);
+        }
+        if (status != null) {
+            wrapper.eq(ColdChainNode::getStatus, status);
+        }
+        wrapper.orderByDesc(ColdChainNode::getCreateTime);
+        page = baseMapper.selectPage(page, wrapper);
+        return PageResult.of(page.getTotal(), page.getCurrent(), page.getSize(), page.getRecords());
+    }
+
+    @Override
     public boolean save(ColdChainNode entity) {
+        if (entity.getNodeCode() == null || entity.getNodeCode().isEmpty()) {
+            String nodeCode = "NOD" + System.currentTimeMillis();
+            entity.setNodeCode(nodeCode);
+        }
         return baseMapper.insert(entity) > 0;
     }
 

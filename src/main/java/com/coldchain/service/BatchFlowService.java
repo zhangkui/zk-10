@@ -25,4 +25,8 @@ public interface BatchFlowService {
     boolean addFlow(BatchFlowDTO dto);
 
     List<Map<String, Object>> getBatchFlowTrace(Long batchId);
+
+    List<Map<String, Object>> getFlowList(Long batchId);
+
+    PageResult<Map<String, Object>> getFlowDetailPage(PageQueryDTO dto, Long batchId);
 }

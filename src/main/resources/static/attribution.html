@@ -137,31 +137,29 @@
                         <label class="form-label">责任类型</label>
                         <select class="form-select" id="responsibilityType">
                             <option value="">全部类型</option>
-                            <option value="transport">运输责任</option>
-                            <option value="storage">仓储责任</option>
-                            <option value="supplier">供应商责任</option>
-                            <option value="equipment">设备故障</option>
-                            <option value="operation">操作不当</option>
-                            <option value="other">其他责任</option>
+                            <option value="温度控制不当">温度控制不当</option>
+                            <option value="操作失误">操作失误</option>
+                            <option value="设备故障">设备故障</option>
+                            <option value="延迟">延迟</option>
+                            <option value="其他">其他</option>
                         </select>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">责任等级</label>
                         <select class="form-select" id="responsibilityLevel">
                             <option value="">全部等级</option>
-                            <option value="minor">轻微</option>
-                            <option value="general">一般</option>
-                            <option value="serious">严重</option>
-                            <option value="critical">重大</option>
+                            <option value="primary">主要责任</option>
+                            <option value="secondary">次要责任</option>
+                            <option value="none">无责任</option>
                         </select>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">状态</label>
                         <select class="form-select" id="status">
                             <option value="">全部状态</option>
-                            <option value="draft">草稿</option>
                             <option value="confirmed">已确认</option>
-                            <option value="resolved">已解决</option>
+                            <option value="appealed">已申诉</option>
+                            <option value="revised">已修正</option>
                         </select>
                     </div>
                     <div class="col-md-4 d-flex align-items-end gap-2">
@@ -236,21 +234,20 @@
                                 <label class="form-label">责任类型 <span class="text-danger">*</span></label>
                                 <select class="form-select" id="addResponsibilityType" required>
                                     <option value="">请选择责任类型</option>
-                                    <option value="transport">运输责任</option>
-                                    <option value="storage">仓储责任</option>
-                                    <option value="supplier">供应商责任</option>
-                                    <option value="equipment">设备故障</option>
-                                    <option value="operation">操作不当</option>
-                                    <option value="other">其他责任</option>
+                                    <option value="温度控制不当">温度控制不当</option>
+                                    <option value="操作失误">操作失误</option>
+                                    <option value="设备故障">设备故障</option>
+                                    <option value="延迟">延迟</option>
+                                    <option value="其他">其他</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">责任等级 <span class="text-danger">*</span></label>
                                 <select class="form-select" id="addResponsibilityLevel" required>
-                                    <option value="">请选择责任等级</option>                                    <option value="minor">轻微</option>
-                                    <option value="general">一般</option>
-                                    <option value="serious">严重</option>
-                                    <option value="critical">重大</option>
+                                    <option value="">请选择责任等级</option>
+                                    <option value="primary">主要责任</option>
+                                    <option value="secondary">次要责任</option>
+                                    <option value="none">无责任</option>
                                 </select>
                             </div>
                         </div>
@@ -263,8 +260,8 @@
                             <textarea class="form-control" id="addAnalysisBasis" rows="3" placeholder="请输入分析依据"></textarea>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">改进建议</label>
-                            <textarea class="form-control" id="addImprovementSuggestion" rows="3" placeholder="请输入改进建议"></textarea>
+                            <label class="form-label">建议</label>
+                            <textarea class="form-control" id="addSuggestion" rows="3" placeholder="请输入建议"></textarea>
                         </div>
                     </form>
                 </div>
@@ -293,31 +290,29 @@
 
         function getResponsibilityTypeText(type) {
             const map = {
-                'transport': '运输责任',
-                'storage': '仓储责任',
-                'supplier': '供应商责任',
-                'equipment': '设备故障',
-                'operation': '操作不当',
-                'other': '其他责任'
+                '温度控制不当': '温度控制不当',
+                '操作失误': '操作失误',
+                '设备故障': '设备故障',
+                '延迟': '延迟',
+                '其他': '其他'
             };
             return map[type] || type;
         }
 
         function getResponsibilityLevelText(level) {
             const map = {
-                'minor': '<span class="badge badge-info">轻微</span>',
-                'general': '<span class="badge badge-warning">一般</span>',
-                'serious': '<span class="badge badge-danger">严重</span>',
-                'critical': '<span class="badge badge-danger">重大</span>'
+                'primary': '<span class="badge badge-danger">主要责任</span>',
+                'secondary': '<span class="badge badge-warning">次要责任</span>',
+                'none': '<span class="badge badge-success">无责任</span>'
             };
             return map[level] || level;
         }
 
         function getStatusText(status) {
             const map = {
-                'draft': '<span class="badge badge-info">草稿</span>',
-                'confirmed': '<span class="badge badge-warning">已确认</span>',
-                'resolved': '<span class="badge badge-success">已解决</span>'
+                'confirmed': '<span class="badge badge-success">已确认</span>',
+                'appealed': '<span class="badge badge-warning">已申诉</span>',
+                'revised': '<span class="badge badge-info">已修正</span>'
             };
             return map[status] || status;
         }
@@ -337,17 +332,16 @@
                 }
             } catch (e) {
                 console.error('加载损耗记录失败', e);
+                alert('加载损耗记录失败：' + (e.response?.data?.message || e.message));
             }
         }
 
         function getLossTypeText(type) {
             const map = {
-                'temperature': '温度异常',
-                'humidity': '湿度异常',
-                'collision': '碰撞损伤',
-                'expired': '过期变质',
-                'pest': '病虫害',
-                'other': '其他'
+                '变质': '变质',
+                '损坏': '损坏',
+                '丢失': '丢失',
+                '其他': '其他'
             };
             return map[type] || type;
         }
@@ -397,6 +391,7 @@
                 renderPagination();
             } catch (e) {
                 console.error('加载归因记录失败', e);
+                alert('加载归因记录失败：' + (e.response?.data?.message || e.message));
             }
         }
 
@@ -438,14 +433,14 @@
                 const btn = event.target;
                 btn.disabled = true;
                 btn.innerHTML = '<i class="bi bi-hourglass-split"></i> 分析中...';
-                const res = await axios.post(`/attribution/analyze/${lossId}`);
+                const res = await axios.get(`/attribution/analyze/${lossId}`);
                 const data = res.data.data;
                 document.getElementById('addResponsibleParty').value = data.responsibleParty || '';
                 document.getElementById('addResponsibilityType').value = data.responsibilityType || '';
                 document.getElementById('addResponsibilityLevel').value = data.responsibilityLevel || '';
                 document.getElementById('addConfidence').value = data.confidence || '';
                 document.getElementById('addAnalysisBasis').value = data.analysisBasis || '';
-                document.getElementById('addImprovementSuggestion').value = data.improvementSuggestion || '';
+                document.getElementById('addSuggestion').value = data.suggestion || data.improvementSuggestion || '';
                 alert('自动分析完成');
             } catch (e) {
                 console.error('自动分析失败', e);
@@ -464,14 +459,21 @@
                 return;
             }
             try {
+                const lossId = document.getElementById('addLossId').value;
+                const lossRes = await axios.get('/loss/detail?id=' + lossId);
+                const lossData = lossRes.data.data;
+                
                 const data = {
-                    lossId: document.getElementById('addLossId').value,
+                    lossId: lossId,
+                    batchId: lossData.batchId,
+                    nodeId: lossData.nodeId,
                     responsibleParty: document.getElementById('addResponsibleParty').value,
                     responsibilityType: document.getElementById('addResponsibilityType').value,
                     responsibilityLevel: document.getElementById('addResponsibilityLevel').value,
                     confidence: document.getElementById('addConfidence').value,
                     analysisBasis: document.getElementById('addAnalysisBasis').value,
-                    improvementSuggestion: document.getElementById('addImprovementSuggestion').value
+                    suggestion: document.getElementById('addSuggestion').value,
+                    analystId: 1
                 };
                 await axios.post('/attribution/add', data);
                 alert('新增成功');
@@ -488,9 +490,10 @@
             try {
                 const res = await axios.get('/attribution/detail?id=' + id);
                 const data = res.data.data;
-                alert(`归因详情：\n批次号：${data.batchNo}\n责任方：${data.responsibleParty}\n责任类型：${getResponsibilityTypeText(data.responsibilityType)}\n责任等级：${data.responsibilityLevel}\n置信度：${data.confidence}%\n分析依据：${data.analysisBasis}\n改进建议：${data.improvementSuggestion}`);
+                alert(`归因详情：\n批次号：${data.batchNo}\n责任方：${data.responsibleParty}\n责任类型：${getResponsibilityTypeText(data.responsibilityType)}\n责任等级：${data.responsibilityLevel}\n置信度：${data.confidence}%\n分析依据：${data.analysisBasis}\n建议：${data.suggestion || data.improvementSuggestion || '-'}`);
             } catch (e) {
                 console.error('加载详情失败', e);
+                alert('加载详情失败：' + (e.response?.data?.message || e.message));
             }
         }
 

@@ -192,7 +192,7 @@
                     <tr>
                         <th>批次号</th>
                         <th>产品名称</th>
-                        <th>初始数量</th>
+                        <th>数量</th>
                         <th>剩余数量</th>
                         <th>总损耗</th>
                         <th>损耗率</th>
@@ -227,8 +227,8 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">初始数量 <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control" id="addQuantity" placeholder="请输入初始数量" required>
+                            <label class="form-label">数量 <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="addQuantity" placeholder="请输入数量" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">产地</label>
@@ -236,8 +236,8 @@
                         </div>
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <label class="form-label">采摘日期</label>
-                                <input type="date" class="form-control" id="addPickDate">
+                                <label class="form-label">收获日期</label>
+                                <input type="date" class="form-control" id="addHarvestDate">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">到期日期</label>
@@ -279,7 +279,7 @@
                                     <span class="detail-value" id="detailProductName"></span>
                                 </div>
                                 <div class="detail-item">
-                                    <span class="detail-label">初始数量：</span>
+                                    <span class="detail-label">数量：</span>
                                     <span class="detail-value" id="detailQuantity"></span>
                                 </div>
                                 <div class="detail-item">
@@ -301,8 +301,8 @@
                                     <span class="detail-value" id="detailLossRate"></span>
                                 </div>
                                 <div class="detail-item">
-                                    <span class="detail-label">采摘日期：</span>
-                                    <span class="detail-value" id="detailPickDate"></span>
+                                    <span class="detail-label">收获日期：</span>
+                                    <span class="detail-value" id="detailHarvestDate"></span>
                                 </div>
                                 <div class="detail-item">
                                     <span class="detail-label">到期日期：</span>
@@ -405,7 +405,7 @@
                     <tr>
                         <td><span class="badge badge-info">${item.batchNo}</span></td>
                         <td>${item.productName}</td>
-                        <td>${item.initialQuantity}</td>
+                        <td>${item.quantity}</td>
                         <td>${item.remainingQuantity}</td>
                         <td class="text-danger">${item.totalLoss || 0}</td>
                         <td>${item.lossRate || 0}%</td>
@@ -427,6 +427,7 @@
                 renderPagination();
             } catch (e) {
                 console.error('加载批次列表失败', e);
+                alert('加载批次列表失败：' + (e.response?.data?.message || e.message));
             }
         }
 
@@ -467,9 +468,9 @@
             try {
                 const data = {
                     productId: document.getElementById('addProductId').value,
-                    initialQuantity: document.getElementById('addQuantity').value,
+                    quantity: document.getElementById('addQuantity').value,
                     origin: document.getElementById('addOrigin').value,
-                    pickDate: document.getElementById('addPickDate').value,
+                    harvestDate: document.getElementById('addHarvestDate').value,
                     expireDate: document.getElementById('addExpireDate').value,
                     remark: document.getElementById('addRemark').value
                 };
@@ -490,12 +491,12 @@
                 const data = res.data.data;
                 document.getElementById('detailBatchNo').textContent = data.batchNo;
                 document.getElementById('detailProductName').textContent = data.productName;
-                document.getElementById('detailQuantity').textContent = data.initialQuantity;
+                document.getElementById('detailQuantity').textContent = data.quantity;
                 document.getElementById('detailRemaining').textContent = data.remainingQuantity;
                 document.getElementById('detailOrigin').textContent = data.origin || '-';
                 document.getElementById('detailTotalLoss').textContent = (data.totalLoss || 0) + ' kg';
                 document.getElementById('detailLossRate').textContent = (data.lossRate || 0) + '%';
-                document.getElementById('detailPickDate').textContent = data.pickDate || '-';
+                document.getElementById('detailHarvestDate').textContent = data.harvestDate || '-';
                 document.getElementById('detailExpireDate').textContent = data.expireDate || '-';
                 document.getElementById('detailStatus').innerHTML = getStatusText(data.status);
                 document.getElementById('detailRemark').textContent = data.remark || '-';
@@ -508,7 +509,7 @@
                         <td>${item.sourceNodeName}</td>
                         <td>${item.targetNodeName}</td>
                         <td>${item.quantity}</td>
-                        <td>${item.operator}</td>
+                        <td>${item.operatorName}</td>
                         <td>${item.operateTime}</td>
                         <td>${item.transportTemperature}℃</td>
                     </tr>
@@ -517,6 +518,7 @@
                 new bootstrap.Modal(document.getElementById('detailModal')).show();
             } catch (e) {
                 console.error('加载详情失败', e);
+                alert('加载详情失败：' + (e.response?.data?.message || e.message));
             }
         }
 

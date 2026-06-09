@@ -266,171 +266,203 @@
                 document.getElementById('activeNode').textContent = data.activeNodeCount;
             } catch (e) {
                 console.error('加载概览数据失败', e);
+                alert('加载概览数据失败：' + (e.response?.data?.message || e.message));
             }
         }
 
         async function loadTrendChart() {
-            const res = await axios.get('/report/lossTrend?days=30');
-            const data = res.data.data;
-            const chart = echarts.init(document.getElementById('trendChart'));
-            chart.setOption({
-                tooltip: { trigger: 'axis' },
-                legend: { data: ['损耗量(kg)', '损耗率(%)'] },
-                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-                xAxis: {
-                    type: 'category',
-                    boundaryGap: false,
-                    data: data.map(d => d.date)
-                },
-                yAxis: [
-                    { type: 'value', name: '损耗量(kg)' },
-                    { type: 'value', name: '损耗率(%)' }
-                ],
-                series: [
-                    {
-                        name: '损耗量(kg)',
-                        type: 'line',
-                        smooth: true,
-                        data: data.map(d => d.lossQuantity),
-                        itemStyle: { color: '#f5222d' },
-                        areaStyle: { color: 'rgba(245, 34, 45, 0.1)' }
+            try {
+                const res = await axios.get('/report/lossTrend?days=30');
+                const data = res.data.data;
+                const chart = echarts.init(document.getElementById('trendChart'));
+                chart.setOption({
+                    tooltip: { trigger: 'axis' },
+                    legend: { data: ['损耗量(kg)', '损耗率(%)'] },
+                    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                    xAxis: {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: data.map(d => d.date)
                     },
-                    {
-                        name: '损耗率(%)',
-                        type: 'line',
-                        smooth: true,
-                        yAxisIndex: 1,
-                        data: data.map(d => d.lossRate),
-                        itemStyle: { color: '#fa8c16' }
-                    }
-                ]
-            });
+                    yAxis: [
+                        { type: 'value', name: '损耗量(kg)' },
+                        { type: 'value', name: '损耗率(%)' }
+                    ],
+                    series: [
+                        {
+                            name: '损耗量(kg)',
+                            type: 'line',
+                            smooth: true,
+                            data: data.map(d => d.lossQuantity),
+                            itemStyle: { color: '#f5222d' },
+                            areaStyle: { color: 'rgba(245, 34, 45, 0.1)' }
+                        },
+                        {
+                            name: '损耗率(%)',
+                            type: 'line',
+                            smooth: true,
+                            yAxisIndex: 1,
+                            data: data.map(d => d.lossRate),
+                            itemStyle: { color: '#fa8c16' }
+                        }
+                    ]
+                });
+            } catch (e) {
+                console.error('加载趋势图表失败', e);
+            }
         }
 
         async function loadCategoryChart() {
-            const res = await axios.get('/report/lossByCategory');
-            const data = res.data.data;
-            const chart = echarts.init(document.getElementById('categoryChart'));
-            const colors = ['#1890ff', '#52c41a', '#faad14', '#f5222d', '#722ed1'];
-            chart.setOption({
-                tooltip: { trigger: 'item', formatter: '{b}: {c}kg ({d}%)' },
-                legend: { orient: 'vertical', left: 'left' },
-                series: [{
-                    type: 'pie',
-                    radius: ['40%', '70%'],
-                    avoidLabelOverlap: false,
-                    itemStyle: { borderRadius: 8, borderColor: '#fff', borderWidth: 2 },
-                    label: { show: true, formatter: '{b}\n{d}%' },
-                    data: data.map((d, i) => ({
-                        value: d.lossQuantity,
-                        name: d.category,
-                        itemStyle: { color: colors[i % colors.length] }
-                    }))
-                }]
-            });
+            try {
+                const res = await axios.get('/report/lossByCategory');
+                const data = res.data.data;
+                const chart = echarts.init(document.getElementById('categoryChart'));
+                const colors = ['#1890ff', '#52c41a', '#faad14', '#f5222d', '#722ed1'];
+                chart.setOption({
+                    tooltip: { trigger: 'item', formatter: '{b}: {c}kg ({d}%)' },
+                    legend: { orient: 'vertical', left: 'left' },
+                    series: [{
+                        type: 'pie',
+                        radius: ['40%', '70%'],
+                        avoidLabelOverlap: false,
+                        itemStyle: { borderRadius: 8, borderColor: '#fff', borderWidth: 2 },
+                        label: { show: true, formatter: '{b}\n{d}%' },
+                        data: data.map((d, i) => ({
+                            value: d.lossQuantity,
+                            name: d.category,
+                            itemStyle: { color: colors[i % colors.length] }
+                        }))
+                    }]
+                });
+            } catch (e) {
+                console.error('加载分类图表失败', e);
+            }
         }
 
         async function loadNodeChart() {
-            const res = await axios.get('/report/lossByNode');
-            const data = res.data.data;
-            const chart = echarts.init(document.getElementById('nodeChart'));
-            chart.setOption({
-                tooltip: { trigger: 'axis' },
-                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-                xAxis: {
-                    type: 'category',
-                    data: data.map(d => d.nodeName),
-                    axisLabel: { rotate: 30, interval: 0 }
-                },
-                yAxis: { type: 'value', name: '损耗量(kg)' },
-                series: [{
-                    type: 'bar',
-                    data: data.map(d => d.lossQuantity),
-                    itemStyle: {
-                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                            { offset: 0, color: '#1890ff' },
-                            { offset: 1, color: '#91d5ff' }
-                        ]),
-                        borderRadius: [4, 4, 0, 0]
+            try {
+                const res = await axios.get('/report/lossByNode');
+                const data = res.data.data;
+                const chart = echarts.init(document.getElementById('nodeChart'));
+                chart.setOption({
+                    tooltip: { trigger: 'axis' },
+                    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                    xAxis: {
+                        type: 'category',
+                        data: data.map(d => d.nodeName),
+                        axisLabel: { rotate: 30, interval: 0 }
                     },
-                    barWidth: '50%'
-                }]
-            });
+                    yAxis: { type: 'value', name: '损耗量(kg)' },
+                    series: [{
+                        type: 'bar',
+                        data: data.map(d => d.lossQuantity),
+                        itemStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: '#1890ff' },
+                                { offset: 1, color: '#91d5ff' }
+                            ]),
+                            borderRadius: [4, 4, 0, 0]
+                        },
+                        barWidth: '50%'
+                    }]
+                });
+            } catch (e) {
+                console.error('加载节点图表失败', e);
+            }
         }
 
         async function loadTypeChart() {
-            const res = await axios.get('/report/lossByType');
-            const data = res.data.data;
-            const chart = echarts.init(document.getElementById('typeChart'));
-            const colors = ['#f5222d', '#fa8c16', '#faad14', '#52c41a'];
-            chart.setOption({
-                tooltip: { trigger: 'item', formatter: '{b}: {c}kg ({d}%)' },
-                legend: { orient: 'vertical', left: 'left' },
-                series: [{
-                    type: 'pie',
-                    radius: '60%',
-                    center: ['55%', '50%'],
-                    data: data.map((d, i) => ({
-                        value: d.lossQuantity,
-                        name: d.lossType,
-                        itemStyle: { color: colors[i % colors.length] }
-                    })),
-                    emphasis: {
-                        itemStyle: {
-                            shadowBlur: 10,
-                            shadowOffsetX: 0,
-                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+            try {
+                const res = await axios.get('/report/lossByType');
+                const data = res.data.data;
+                const chart = echarts.init(document.getElementById('typeChart'));
+                const colors = ['#f5222d', '#fa8c16', '#faad14', '#52c41a'];
+                chart.setOption({
+                    tooltip: { trigger: 'item', formatter: '{b}: {c}kg ({d}%)' },
+                    legend: { orient: 'vertical', left: 'left' },
+                    series: [{
+                        type: 'pie',
+                        radius: '60%',
+                        center: ['55%', '50%'],
+                        data: data.map((d, i) => ({
+                            value: d.lossQuantity,
+                            name: d.lossType,
+                            itemStyle: { color: colors[i % colors.length] }
+                        })),
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
                         }
-                    }
-                }]
-            });
+                    }]
+                });
+            } catch (e) {
+                console.error('加载类型图表失败', e);
+            }
         }
 
         async function loadResponsibilityChart() {
-            const res = await axios.get('/report/lossByResponsibility');
-            const data = res.data.data;
-            const chart = echarts.init(document.getElementById('responsibilityChart'));
-            chart.setOption({
-                tooltip: { trigger: 'axis' },
-                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-                xAxis: {
-                    type: 'category',
-                    data: data.map(d => d.responsibilityType),
-                    axisLabel: { rotate: 20, interval: 0 }
-                },
-                yAxis: { type: 'value', name: '损耗量(kg)' },
-                series: [{
-                    type: 'bar',
-                    data: data.map(d => d.lossQuantity),
-                    itemStyle: {
-                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                            { offset: 0, color: '#722ed1' },
-                            { offset: 1, color: '#b37feb' }
-                        ]),
-                        borderRadius: [4, 4, 0, 0]
+            try {
+                const res = await axios.get('/report/lossByResponsibility');
+                const data = res.data.data;
+                const chart = echarts.init(document.getElementById('responsibilityChart'));
+                chart.setOption({
+                    tooltip: { trigger: 'axis' },
+                    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                    xAxis: {
+                        type: 'category',
+                        data: data.map(d => d.responsibilityType),
+                        axisLabel: { rotate: 20, interval: 0 }
                     },
-                    barWidth: '50%'
-                }]
-            });
+                    yAxis: { type: 'value', name: '损耗量(kg)' },
+                    series: [{
+                        type: 'bar',
+                        data: data.map(d => d.lossQuantity),
+                        itemStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: '#722ed1' },
+                                { offset: 1, color: '#b37feb' }
+                            ]),
+                            borderRadius: [4, 4, 0, 0]
+                        },
+                        barWidth: '50%'
+                    }]
+                });
+            } catch (e) {
+                console.error('加载责任图表失败', e);
+            }
+        }
+
+        function getStatusText(status) {
+            const map = {
+                'pending': '<span class="badge badge-warning">待处理</span>',
+                'processed': '<span class="badge badge-info">已处理</span>',
+                'attributed': '<span class="badge badge-success">已归因</span>'
+            };
+            return map[status] || status;
         }
 
         async function loadRecentLoss() {
-            const res = await axios.get('/loss/page?pageNum=1&pageSize=5');
-            const data = res.data.data.records;
-            const tbody = document.getElementById('recentLossTable');
-            tbody.innerHTML = data.map(item => `
-                <tr>
-                    <td><span class="badge badge-info">${item.batchNo}</span></td>
-                    <td>${item.productName}</td>
-                    <td class="text-danger fw-bold">${item.lossQuantity}</td>
-                    <td>${item.lossRate}%</td>
-                    <td>${item.lossType}</td>
-                    <td>${item.status === 'processed' ? 
-                        '<span class="badge badge-success">已处理</span>' : 
-                        '<span class="badge badge-warning">待处理</span>'}</td>
-                    <td>${item.discoverTime}</td>
-                </tr>
-            `).join('');
+            try {
+                const res = await axios.get('/loss/page?pageNum=1&pageSize=5');
+                const data = res.data.data.records;
+                const tbody = document.getElementById('recentLossTable');
+                tbody.innerHTML = data.map(item => `
+                    <tr>
+                        <td><span class="badge badge-info">${item.batchNo}</span></td>
+                        <td>${item.productName}</td>
+                        <td class="text-danger fw-bold">${item.lossQuantity}</td>
+                        <td>${item.lossRate}%</td>
+                        <td>${item.lossType}</td>
+                        <td>${getStatusText(item.status)}</td>
+                        <td>${item.discoverTime}</td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error('加载最近损耗记录失败', e);
+            }
         }
 
         window.addEventListener('resize', () => {

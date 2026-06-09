@@ -299,6 +299,7 @@
                 }
             } catch (e) {
                 console.error('加载批次列表失败', e);
+                alert('加载批次列表失败：' + (e.response?.data?.message || e.message));
             }
         }
 
@@ -311,7 +312,7 @@
             }
 
             try {
-                const res = await axios.get('/trace/data?batchId=' + batchId);
+                const res = await axios.get('/batch/' + batchId + '/trace');
                 const data = res.data.data;
 
                 document.getElementById('infoSection').style.display = 'block';
@@ -319,7 +320,7 @@
 
                 document.getElementById('infoBatchNo').textContent = data.batch.batchNo;
                 document.getElementById('infoProduct').textContent = data.batch.productName;
-                document.getElementById('infoQuantity').textContent = data.batch.initialQuantity + ' kg';
+                document.getElementById('infoQuantity').textContent = data.batch.quantity + ' kg';
                 document.getElementById('infoStatus').innerHTML = getStatusText(data.batch.status);
                 document.getElementById('infoLossRate').textContent = (data.batch.lossRate || 0) + '%';
 
@@ -327,7 +328,7 @@
                 renderTimeline(data);
             } catch (e) {
                 console.error('加载追溯数据失败', e);
-                alert('加载追溯数据失败');
+                alert('加载追溯数据失败：' + (e.response?.data?.message || e.message));
             }
         }
 
@@ -455,7 +456,7 @@
                     <div class="content">
                         <h6><i class="bi bi-box-seam"></i> 批次创建</h6>
                         <p>产品：${data.batch.productName}</p>
-                        <p>初始数量：${data.batch.initialQuantity} kg</p>
+                        <p>数量：${data.batch.quantity} kg</p>
                         <p>产地：${data.batch.origin || '-'}</p>
                     </div>
                 </div>
@@ -471,7 +472,7 @@
                                 <p><span class="badge badge-info">${flow.sourceNodeName}</span> <i class="bi bi-arrow-right"></i> <span class="badge badge-info">${flow.targetNodeName}</span></p>
                                 <p>流转数量：${flow.quantity} kg</p>
                                 <p>运输温度：${flow.transportTemperature}℃</p>
-                                <p>操作人：${flow.operator}</p>
+                                <p>操作人：${flow.operatorName}</p>
                             </div>
                         </div>
                     `;

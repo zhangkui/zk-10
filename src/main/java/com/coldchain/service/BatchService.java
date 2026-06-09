@@ -27,4 +27,6 @@ public interface BatchService {
     PageResult<Map<String, Object>> getBatchDetailPage(BatchQueryDTO dto);
 
     Map<String, Object> getBatchDetail(Long id);
+
+    List<Map<String, Object>> getBatchList();
 }

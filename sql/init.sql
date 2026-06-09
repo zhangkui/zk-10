@@ -1,3 +1,5 @@
+SET NAMES utf8mb4;
+
 CREATE DATABASE IF NOT EXISTS cold_chain DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 
 USE cold_chain;

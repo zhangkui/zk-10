@@ -27,4 +27,6 @@ public interface ResponsibilityAttributionService {
     Map<String, Object> analyzeLoss(Long lossId);
 
     PageResult<Map<String, Object>> getAttributionPage(PageQueryDTO dto);
+
+    Map<String, Object> getAttributionDetail(Long id);
 }

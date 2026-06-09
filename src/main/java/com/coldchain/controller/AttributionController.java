@@ -4,7 +4,6 @@ import com.coldchain.common.PageResult;
 import com.coldchain.common.Result;
 import com.coldchain.dto.AttributionDTO;
 import com.coldchain.dto.PageQueryDTO;
-import com.coldchain.entity.ResponsibilityAttribution;
 import com.coldchain.service.ResponsibilityAttributionService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -29,16 +28,23 @@ public class AttributionController {
     }
 
     @ApiOperation("获取归因详情")
-    @GetMapping("/{id}")
-    public Result<ResponsibilityAttribution> getById(@ApiParam("归因记录ID") @PathVariable Long id) {
-        return Result.success(attributionService.getById(id));
+    @GetMapping("/detail")
+    public Result<Map<String, Object>> getById(@ApiParam("归因记录ID") @RequestParam Long id) {
+        return Result.success(attributionService.getAttributionDetail(id));
     }
 
     @ApiOperation("添加归因分析")
-    @PostMapping
+    @PostMapping("/add")
     public Result<Boolean> save(@RequestBody AttributionDTO dto) {
         boolean result = attributionService.addAttribution(dto);
         return result ? Result.success(result) : Result.error("添加失败");
+    }
+
+    @ApiOperation("删除归因记录")
+    @DeleteMapping("/delete")
+    public Result<Boolean> delete(@ApiParam("归因记录ID") @RequestParam Long id) {
+        boolean result = attributionService.delete(id);
+        return result ? Result.success(result) : Result.error("删除失败");
     }
 
     @ApiOperation("自动分析损耗原因")

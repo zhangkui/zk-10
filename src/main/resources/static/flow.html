@@ -195,13 +195,13 @@
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">来源节点 <span class="text-danger">*</span></label>
-                                <select class="form-select" id="addSourceNodeId" required>
+                                <select class="form-select" id="addFromNodeId" required>
                                     <option value="">请选择来源节点</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">目标节点 <span class="text-danger">*</span></label>
-                                <select class="form-select" id="addTargetNodeId" required>
+                                <select class="form-select" id="addToNodeId" required>
                                     <option value="">请选择目标节点</option>
                                 </select>
                             </div>
@@ -209,11 +209,11 @@
                         <div class="row g-3 mb-3">
                             <div class="col-md-4">
                                 <label class="form-label">流转数量 <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" id="addQuantity" placeholder="请输入数量" required>
+                                <input type="number" class="form-control" id="addFlowQuantity" placeholder="请输入数量" required>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">运输温度(℃)</label>
-                                <input type="number" step="0.1" class="form-control" id="addTemperature" placeholder="运输温度">
+                                <label class="form-label">温度(℃)</label>
+                                <input type="number" step="0.1" class="form-control" id="addTemperature" placeholder="温度">
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">运输时长(小时)</label>
@@ -222,8 +222,8 @@
                         </div>
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <label class="form-label">操作人 <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="addOperator" placeholder="请输入操作人" required>
+                                <label class="form-label">操作人ID <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="addOperatorId" placeholder="请输入操作人ID" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">操作时间 <span class="text-danger">*</span></label>
@@ -265,10 +265,11 @@
                 const data = res.data.data;
                 const options = data.map(n => `<option value="${n.id}">${n.nodeName}</option>`).join('');
                 document.getElementById('nodeId').innerHTML = '<option value="">全部节点</option>' + options;
-                document.getElementById('addSourceNodeId').innerHTML = '<option value="">请选择来源节点</option>' + options;
-                document.getElementById('addTargetNodeId').innerHTML = '<option value="">请选择目标节点</option>' + options;
+                document.getElementById('addFromNodeId').innerHTML = '<option value="">请选择来源节点</option>' + options;
+                document.getElementById('addToNodeId').innerHTML = '<option value="">请选择目标节点</option>' + options;
             } catch (e) {
                 console.error('加载节点列表失败', e);
+                alert('加载节点列表失败：' + (e.response?.data?.message || e.message));
             }
         }
 
@@ -280,6 +281,7 @@
                 document.getElementById('addBatchId').innerHTML = '<option value="">请选择批次</option>' + options;
             } catch (e) {
                 console.error('加载批次列表失败', e);
+                alert('加载批次列表失败：' + (e.response?.data?.message || e.message));
             }
         }
 
@@ -304,7 +306,7 @@
                         <td>${item.sourceNodeName}</td>
                         <td><i class="bi bi-arrow-right text-primary"></i> ${item.targetNodeName}</td>
                         <td>${item.quantity}</td>
-                        <td>${item.operator}</td>
+                        <td>${item.operatorName}</td>
                         <td>${item.operateTime}</td>
                         <td>${item.transportTemperature}℃</td>
                         <td>${item.transportDuration || '-'} h</td>
@@ -313,6 +315,7 @@
                 renderPagination();
             } catch (e) {
                 console.error('加载流转记录失败', e);
+                alert('加载流转记录失败：' + (e.response?.data?.message || e.message));
             }
         }
 
@@ -350,19 +353,19 @@
                 form.reportValidity();
                 return;
             }
-            if (document.getElementById('addSourceNodeId').value === document.getElementById('addTargetNodeId').value) {
+            if (document.getElementById('addFromNodeId').value === document.getElementById('addToNodeId').value) {
                 alert('来源节点和目标节点不能相同');
                 return;
             }
             try {
                 const data = {
                     batchId: document.getElementById('addBatchId').value,
-                    sourceNodeId: document.getElementById('addSourceNodeId').value,
-                    targetNodeId: document.getElementById('addTargetNodeId').value,
-                    quantity: document.getElementById('addQuantity').value,
-                    operator: document.getElementById('addOperator').value,
+                    fromNodeId: document.getElementById('addFromNodeId').value,
+                    toNodeId: document.getElementById('addToNodeId').value,
+                    flowQuantity: document.getElementById('addFlowQuantity').value,
+                    operatorId: document.getElementById('addOperatorId').value,
                     operateTime: document.getElementById('addOperateTime').value,
-                    transportTemperature: document.getElementById('addTemperature').value,
+                    temperature: document.getElementById('addTemperature').value,
                     transportDuration: document.getElementById('addDuration').value,
                     remark: document.getElementById('addRemark').value
                 };

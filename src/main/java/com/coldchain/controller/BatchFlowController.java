@@ -12,6 +12,9 @@ import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
+
 @Api(tags = "流转记录管理")
 @RestController
 @RequestMapping("/api/flow")
@@ -20,28 +23,34 @@ public class BatchFlowController {
     @Autowired
     private BatchFlowService batchFlowService;
 
+    @ApiOperation("获取流转记录列表")
+    @GetMapping("/list")
+    public Result<List<Map<String, Object>>> list(@ApiParam("批次ID") @RequestParam(required = false) Long batchId) {
+        return Result.success(batchFlowService.getFlowList(batchId));
+    }
+
     @ApiOperation("分页查询流转记录")
     @GetMapping("/page")
-    public Result<PageResult<BatchFlow>> page(PageQueryDTO dto) {
-        return Result.success(batchFlowService.page(dto));
+    public Result<PageResult<Map<String, Object>>> page(PageQueryDTO dto, @ApiParam("批次ID") @RequestParam(required = false) Long batchId) {
+        return Result.success(batchFlowService.getFlowDetailPage(dto, batchId));
     }
 
     @ApiOperation("获取流转详情")
-    @GetMapping("/{id}")
-    public Result<BatchFlow> getById(@ApiParam("流转记录ID") @PathVariable Long id) {
+    @GetMapping("/detail")
+    public Result<BatchFlow> getById(@ApiParam("流转记录ID") @RequestParam Long id) {
         return Result.success(batchFlowService.getById(id));
     }
 
     @ApiOperation("添加流转记录")
-    @PostMapping
+    @PostMapping("/add")
     public Result<Boolean> save(@RequestBody BatchFlowDTO dto) {
         boolean result = batchFlowService.addFlow(dto);
         return result ? Result.success(result) : Result.error("添加失败");
     }
 
     @ApiOperation("删除流转记录")
-    @DeleteMapping("/{id}")
-    public Result<Boolean> delete(@ApiParam("流转记录ID") @PathVariable Long id) {
+    @DeleteMapping("/delete")
+    public Result<Boolean> delete(@ApiParam("流转记录ID") @RequestParam Long id) {
         boolean result = batchFlowService.delete(id);
         return result ? Result.success(result) : Result.error("删除失败");
     }

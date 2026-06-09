@@ -127,21 +127,18 @@
                         <label class="form-label">节点类型</label>
                         <select class="form-select" id="nodeType">
                             <option value="">全部类型</option>
-                            <option value="farm">种植基地</option>
+                            <option value="supplier">供应商</option>
                             <option value="warehouse">仓库</option>
-                            <option value="transport">运输车辆</option>
-                            <option value="processing">加工厂</option>
-                            <option value="market">市场</option>
-                            <option value="retail">零售终端</option>
+                            <option value="transit">运输节点</option>
+                            <option value="store">门店</option>
                         </select>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">状态</label>
                         <select class="form-select" id="status">
                             <option value="">全部状态</option>
-                            <option value="active">正常</option>
-                            <option value="inactive">停用</option>
-                            <option value="maintenance">维护中</option>
+                            <option value="1">正常</option>
+                            <option value="0">停用</option>
                         </select>
                     </div>
                     <div class="col-md-4 d-flex align-items-end gap-2">
@@ -180,6 +177,10 @@
                 <tbody id="nodeTable">
                 </tbody>
             </table>
+            <nav>
+                <ul class="pagination" id="pagination">
+                </ul>
+            </nav>
         </div>
     </div>
 
@@ -230,14 +231,13 @@
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">当前温度(℃)</label>
-                                <input type="number" step="0.1" class="form-control" id="editCurrentTemperature" placeholder="请输入当前温度">
+                                <input type="number" step="0.1" class="form-control" id="editTemperature" placeholder="请输入当前温度">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">状态</label>
                                 <select class="form-select" id="editStatus">
-                                    <option value="active">正常</option>
-                                    <option value="inactive">停用</option>
-                                    <option value="maintenance">维护中</option>
+                                    <option value="1">正常</option>
+                                    <option value="0">停用</option>
                                 </select>
                             </div>
                         </div>
@@ -255,6 +255,10 @@
         const API_BASE = '/api';
         axios.defaults.baseURL = API_BASE;
 
+        let currentPage = 1;
+        let pageSize = 10;
+        let total = 0;
+
         function updateTime() {
             const now = new Date();
             document.getElementById('currentTime').textContent = now.toLocaleString('zh-CN');
@@ -264,21 +268,20 @@
 
         function getNodeTypeText(type) {
             const map = {
-                'farm': '<span class="badge badge-success">种植基地</span>',
+                'supplier': '<span class="badge badge-success">供应商</span>',
                 'warehouse': '<span class="badge badge-info">仓库</span>',
-                'transport': '<span class="badge badge-warning">运输车辆</span>',
-                'processing': '<span class="badge badge-info">加工厂</span>',
-                'market': '<span class="badge badge-warning">市场</span>',
-                'retail': '<span class="badge badge-info">零售终端</span>'
+                'transit': '<span class="badge badge-warning">运输节点</span>',
+                'store': '<span class="badge badge-info">门店</span>'
             };
             return map[type] || type;
         }
 
         function getStatusText(status) {
             const map = {
-                'active': '<span class="badge badge-success">正常</span>',
-                'inactive': '<span class="badge badge-secondary">停用</span>',
-                'maintenance': '<span class="badge badge-warning">维护中</span>'
+                1: '<span class="badge badge-success">正常</span>',
+                '1': '<span class="badge badge-success">正常</span>',
+                0: '<span class="badge badge-secondary">停用</span>',
+                '0': '<span class="badge badge-secondary">停用</span>'
             };
             return map[status] || status;
         }
@@ -293,14 +296,18 @@
         async function loadNodeList() {
             try {
                 const params = {
+                    pageNum: currentPage,
+                    pageSize: pageSize,
                     nodeName: document.getElementById('nodeName').value,
                     nodeType: document.getElementById('nodeType').value,
                     status: document.getElementById('status').value
                 };
-                const res = await axios.get('/node/list', { params });
-                const data = res.data.data || [];
+                const res = await axios.get('/node/page', { params });
+                const data = res.data.data;
+                total = data.total;
+                const records = data.records || [];
                 const tbody = document.getElementById('nodeTable');
-                tbody.innerHTML = data.map(item => `
+                tbody.innerHTML = records.map(item => `
                     <tr>
                         <td><span class="badge badge-info">${item.nodeCode}</span></td>
                         <td>${item.nodeName}</td>
@@ -308,9 +315,9 @@
                         <td>${item.address || '-'}</td>
                         <td>${item.manager || '-'}</td>
                         <td>${item.phone || '-'}</td>
-                        <td class="${getTempClass(item.currentTemperature)}">
+                        <td class="${getTempClass(item.temperature)}">
                             <i class="bi bi-thermometer-half"></i>
-                            ${item.currentTemperature !== null && item.currentTemperature !== undefined ? item.currentTemperature + '℃' : '-'}
+                            ${item.temperature !== null && item.temperature !== undefined ? item.temperature + '℃' : '-'}
                         </td>
                         <td>${getStatusText(item.status)}</td>
                         <td>
@@ -323,16 +330,41 @@
                         </td>
                     </tr>
                 `).join('') || '<tr><td colspan="9" class="text-center text-muted">暂无数据</td></tr>';
+                renderPagination();
             } catch (e) {
                 console.error('加载节点列表失败', e);
+                alert('加载节点列表失败：' + (e.response?.data?.message || e.message));
             }
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(total / pageSize);
+            const pagination = document.getElementById('pagination');
+            if (!pagination) return;
+            let html = '';
+            html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="javascript:goPage(${currentPage - 1})">上一页</a></li>`;
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    html += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="javascript:goPage(${i})">${i}</a></li>`;
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    html += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                }
+            }
+            html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="javascript:goPage(${currentPage + 1})">下一页</a></li>`;
+            pagination.innerHTML = html;
+        }
+
+        function goPage(page) {
+            if (page < 1) return;
+            currentPage = page;
+            loadNodeList();
         }
 
         function openAddModal() {
             document.getElementById('modalTitle').innerHTML = '<i class="bi bi-plus-lg"></i> 新增节点';
             document.getElementById('editId').value = '';
             document.getElementById('editForm').reset();
-            document.getElementById('editStatus').value = 'active';
+            document.getElementById('editStatus').value = '1';
         }
 
         async function openEditModal(id) {
@@ -347,7 +379,7 @@
                 document.getElementById('editAddress').value = data.address || '';
                 document.getElementById('editManager').value = data.manager || '';
                 document.getElementById('editPhone').value = data.phone || '';
-                document.getElementById('editCurrentTemperature').value = data.currentTemperature;
+                document.getElementById('editTemperature').value = data.temperature;
                 document.getElementById('editStatus').value = data.status;
                 new bootstrap.Modal(document.getElementById('editModal')).show();
             } catch (e) {
@@ -370,7 +402,7 @@
                     address: document.getElementById('editAddress').value,
                     manager: document.getElementById('editManager').value,
                     phone: document.getElementById('editPhone').value,
-                    currentTemperature: document.getElementById('editCurrentTemperature').value,
+                    temperature: document.getElementById('editTemperature').value,
                     status: document.getElementById('editStatus').value
                 };
                 if (id) {
@@ -402,11 +434,13 @@
 
         function resetForm() {
             document.getElementById('searchForm').reset();
+            currentPage = 1;
             loadNodeList();
         }
 
         document.getElementById('searchForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            currentPage = 1;
             loadNodeList();
         });
 

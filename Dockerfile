@@ -1,4 +1,4 @@
-FROM maven:3.8.6-openjdk-8 AS builder
+FROM maven:3.9.9-eclipse-temurin-17-alpine AS builder
 
 WORKDIR /app
 
@@ -8,14 +8,13 @@ RUN mvn dependency:go-offline -B
 COPY src ./src
 RUN mvn clean package -DskipTests -B
 
-FROM openjdk:8-jre-slim
+FROM eclipse-temurin:17-jdk-alpine
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y tzdata && \
+RUN apk add --no-cache tzdata && \
     ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
-    echo "Asia/Shanghai" > /etc/timezone && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+    echo "Asia/Shanghai" > /etc/timezone
 
 COPY --from=builder /app/target/cold-chain-system-1.0.0.jar app.jar
 

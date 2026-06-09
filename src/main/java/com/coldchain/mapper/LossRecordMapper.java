@@ -15,12 +15,39 @@ import java.util.Map;
 @Mapper
 public interface LossRecordMapper extends BaseMapper<LossRecord> {
 
-    @Select("SELECT lr.*, b.batch_no, n.node_name, n.node_code " +
+    @Select("SELECT lr.id, lr.batch_id, lr.flow_id, lr.node_id, " +
+            "lr.loss_quantity AS lossQuantity, lr.loss_rate AS lossRate, " +
+            "lr.loss_type AS lossType, lr.loss_reason AS lossReason, " +
+            "lr.discover_time AS discoverTime, lr.operator_id, " +
+            "lr.is_attributed AS hasAttribution, lr.status, lr.remark, " +
+            "lr.create_time AS createTime, lr.update_time AS updateTime, " +
+            "b.batch_no AS batchNo, p.product_name AS productName, " +
+            "n.node_name AS nodeName, n.node_code AS nodeCode, " +
+            "su.real_name AS operatorName " +
             "FROM loss_record lr " +
             "LEFT JOIN batch b ON lr.batch_id = b.id " +
+            "LEFT JOIN product p ON b.product_id = p.id " +
             "LEFT JOIN cold_chain_node n ON lr.node_id = n.id " +
+            "LEFT JOIN sys_user su ON lr.operator_id = su.id " +
             "${ew.customSqlSegment}")
     IPage<Map<String, Object>> selectLossRecordPage(Page<Map<String, Object>> page, @Param("ew") Wrapper<LossRecord> wrapper);
+
+    @Select("SELECT lr.id, lr.batch_id, lr.flow_id, lr.node_id, " +
+            "lr.loss_quantity AS lossQuantity, lr.loss_rate AS lossRate, " +
+            "lr.loss_type AS lossType, lr.loss_reason AS lossReason, " +
+            "lr.discover_time AS discoverTime, lr.operator_id, " +
+            "lr.is_attributed AS hasAttribution, lr.status, lr.remark, " +
+            "lr.create_time AS createTime, lr.update_time AS updateTime, " +
+            "b.batch_no AS batchNo, p.product_name AS productName, " +
+            "n.node_name AS nodeName, n.node_code AS nodeCode, " +
+            "su.real_name AS operatorName " +
+            "FROM loss_record lr " +
+            "LEFT JOIN batch b ON lr.batch_id = b.id " +
+            "LEFT JOIN product p ON b.product_id = p.id " +
+            "LEFT JOIN cold_chain_node n ON lr.node_id = n.id " +
+            "LEFT JOIN sys_user su ON lr.operator_id = su.id " +
+            "ORDER BY lr.discover_time DESC")
+    List<Map<String, Object>> selectLossList();
 
     @Select("SELECT p.category AS name, COALESCE(SUM(lr.loss_quantity), 0) AS value " +
             "FROM loss_record lr " +

@@ -119,4 +119,9 @@ public class LossRecordServiceImpl extends ServiceImpl<LossRecordMapper, LossRec
         Page<Map<String, Object>> result = (Page<Map<String, Object>>) baseMapper.selectLossRecordPage(page, wrapper);
         return PageResult.of(result.getTotal(), result.getCurrent(), result.getSize(), result.getRecords());
     }
+
+    @Override
+    public List<Map<String, Object>> getLossList() {
+        return baseMapper.selectLossList();
+    }
 }

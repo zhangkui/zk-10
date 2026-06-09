@@ -26,6 +26,12 @@ public class BatchController {
     @Autowired
     private BatchFlowService batchFlowService;
 
+    @ApiOperation("获取所有批次列表")
+    @GetMapping("/list")
+    public Result<List<Map<String, Object>>> list() {
+        return Result.success(batchService.getBatchList());
+    }
+
     @ApiOperation("分页查询批次")
     @GetMapping("/page")
     public Result<PageResult<Map<String, Object>>> page(BatchQueryDTO dto) {
@@ -33,28 +39,28 @@ public class BatchController {
     }
 
     @ApiOperation("获取批次详情")
-    @GetMapping("/{id}")
-    public Result<Map<String, Object>> getById(@ApiParam("批次ID") @PathVariable Long id) {
+    @GetMapping("/detail")
+    public Result<Map<String, Object>> getById(@ApiParam("批次ID") @RequestParam Long id) {
         return Result.success(batchService.getBatchDetail(id));
     }
 
     @ApiOperation("创建批次")
-    @PostMapping
+    @PostMapping("/add")
     public Result<Boolean> save(@RequestBody Batch batch) {
         boolean result = batchService.createBatch(batch);
         return result ? Result.success(result) : Result.error("创建失败");
     }
 
     @ApiOperation("更新批次")
-    @PutMapping
+    @PutMapping("/update")
     public Result<Boolean> update(@RequestBody Batch batch) {
         boolean result = batchService.update(batch);
         return result ? Result.success(result) : Result.error("更新失败");
     }
 
     @ApiOperation("删除批次")
-    @DeleteMapping("/{id}")
-    public Result<Boolean> delete(@ApiParam("批次ID") @PathVariable Long id) {
+    @DeleteMapping("/delete")
+    public Result<Boolean> delete(@ApiParam("批次ID") @RequestParam Long id) {
         boolean result = batchService.delete(id);
         return result ? Result.success(result) : Result.error("删除失败");
     }

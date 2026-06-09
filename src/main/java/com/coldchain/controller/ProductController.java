@@ -26,28 +26,28 @@ public class ProductController {
     }
 
     @ApiOperation("获取产品详情")
-    @GetMapping("/{id}")
-    public Result<Product> getById(@ApiParam("产品ID") @PathVariable Long id) {
+    @GetMapping("/detail")
+    public Result<Product> getById(@ApiParam("产品ID") @RequestParam Long id) {
         return Result.success(productService.getById(id));
     }
 
     @ApiOperation("新增产品")
-    @PostMapping
+    @PostMapping("/add")
     public Result<Boolean> save(@RequestBody Product product) {
         boolean result = productService.save(product);
         return result ? Result.success(result) : Result.error("新增失败");
     }
 
     @ApiOperation("修改产品")
-    @PutMapping
+    @PutMapping("/update")
     public Result<Boolean> update(@RequestBody Product product) {
         boolean result = productService.update(product);
         return result ? Result.success(result) : Result.error("修改失败");
     }
 
     @ApiOperation("删除产品")
-    @DeleteMapping("/{id}")
-    public Result<Boolean> delete(@ApiParam("产品ID") @PathVariable Long id) {
+    @DeleteMapping("/delete")
+    public Result<Boolean> delete(@ApiParam("产品ID") @RequestParam Long id) {
         boolean result = productService.delete(id);
         return result ? Result.success(result) : Result.error("删除失败");
     }

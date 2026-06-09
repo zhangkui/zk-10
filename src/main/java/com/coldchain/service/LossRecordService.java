@@ -25,4 +25,6 @@ public interface LossRecordService {
     boolean addLossRecord(LossRecordDTO dto);
 
     PageResult<Map<String, Object>> getLossRecordPage(PageQueryDTO dto);
+
+    List<Map<String, Object>> getLossList();
 }

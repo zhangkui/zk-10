@@ -125,12 +125,10 @@
                         <label class="form-label">损耗类型</label>
                         <select class="form-select" id="lossType">
                             <option value="">全部类型</option>
-                            <option value="temperature">温度异常</option>
-                            <option value="humidity">湿度异常</option>
-                            <option value="collision">碰撞损伤</option>
-                            <option value="expired">过期变质</option>
-                            <option value="pest">病虫害</option>
-                            <option value="other">其他</option>
+                            <option value="变质">变质</option>
+                            <option value="损坏">损坏</option>
+                            <option value="丢失">丢失</option>
+                            <option value="其他">其他</option>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -230,12 +228,10 @@
                                 <label class="form-label">损耗类型 <span class="text-danger">*</span></label>
                                 <select class="form-select" id="addLossType" required>
                                     <option value="">请选择损耗类型</option>
-                                    <option value="temperature">温度异常</option>
-                                    <option value="humidity">湿度异常</option>
-                                    <option value="collision">碰撞损伤</option>
-                                    <option value="expired">过期变质</option>
-                                    <option value="pest">病虫害</option>
-                                    <option value="other">其他</option>
+                                    <option value="变质">变质</option>
+                                    <option value="损坏">损坏</option>
+                                    <option value="丢失">丢失</option>
+                                    <option value="其他">其他</option>
                                 </select>
                             </div>
                         </div>
@@ -278,12 +274,10 @@
 
         function getLossTypeText(type) {
             const map = {
-                'temperature': '温度异常',
-                'humidity': '湿度异常',
-                'collision': '碰撞损伤',
-                'expired': '过期变质',
-                'pest': '病虫害',
-                'other': '其他'
+                '变质': '变质',
+                '损坏': '损坏',
+                '丢失': '丢失',
+                '其他': '其他'
             };
             return map[type] || type;
         }
@@ -305,6 +299,7 @@
                 document.getElementById('addBatchId').innerHTML = '<option value="">请选择批次</option>' + options;
             } catch (e) {
                 console.error('加载批次列表失败', e);
+                alert('加载批次列表失败：' + (e.response?.data?.message || e.message));
             }
         }
 
@@ -316,6 +311,7 @@
                 document.getElementById('addNodeId').innerHTML = '<option value="">请选择节点</option>' + options;
             } catch (e) {
                 console.error('加载节点列表失败', e);
+                alert('加载节点列表失败：' + (e.response?.data?.message || e.message));
             }
         }
 
@@ -376,6 +372,7 @@
                 renderPagination();
             } catch (e) {
                 console.error('加载损耗记录失败', e);
+                alert('加载损耗记录失败：' + (e.response?.data?.message || e.message));
             }
         }
 
@@ -422,6 +419,7 @@
                     lossType: document.getElementById('addLossType').value,
                     lossReason: document.getElementById('addReason').value,
                     discoverTime: document.getElementById('addDiscoverTime').value,
+                    operatorId: 1,
                     remark: document.getElementById('addRemark').value
                 };
                 await axios.post('/loss/add', data);
