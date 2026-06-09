@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>产品管理 - 农产品冷链损耗归因分析系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; }
+        .sidebar {
+            width: 220px;
+            height: 100vh;
+            background: linear-gradient(180deg, #001529 0%, #002140 100%);
+            position: fixed;
+            left: 0;
+            top: 0;
+            color: #fff;
+            padding-top: 20px;
+        }
+        .sidebar .logo {
+            text-align: center;
+            padding: 20px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+        .sidebar .logo h4 { font-size: 16px; font-weight: bold; margin: 0; }
+        .sidebar .logo p { font-size: 12px; opacity: 0.7; margin: 5px 0 0; }
+        .sidebar .menu { list-style: none; }
+        .sidebar .menu li { padding: 0; }
+        .sidebar .menu li a {
+            display: block;
+            padding: 14px 25px;
+            color: rgba(255,255,255,0.75);
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        .sidebar .menu li a:hover,
+        .sidebar .menu li a.active {
+            background: rgba(24, 144, 255, 0.2);
+            color: #fff;
+            border-left-color: #1890ff;
+        }
+        .sidebar .menu li a i { margin-right: 10px; }
+        .main-content {
+            margin-left: 220px;
+            padding: 20px;
+        }
+        .header {
+            background: #fff;
+            padding: 15px 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .header h3 { margin: 0; color: #333; }
+        .search-box {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .table-box {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: normal;
+        }
+        .badge-success { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+        .badge-warning { background: #fffbe6; color: #faad14; border: 1px solid #ffe58f; }
+        .badge-danger { background: #fff1f0; color: #f5222d; border: 1px solid #ffa39e; }
+        .badge-info { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <h4><i class="bi bi-snow2"></i> 冷链损耗分析</h4>
+            <p>Cold Chain Loss Analysis</p>
+        </div>
+        <ul class="menu">
+            <li><a href="index.html"><i class="bi bi-speedometer2"></i> 数据概览</a></li>
+            <li><a href="batch.html"><i class="bi bi-box-seam"></i> 批次管理</a></li>
+            <li><a href="flow.html"><i class="bi bi-arrow-left-right"></i> 流转记录</a></li>
+            <li><a href="loss.html"><i class="bi bi-exclamation-triangle"></i> 损耗记录</a></li>
+            <li><a href="attribution.html"><i class="bi bi-search"></i> 归因分析</a></li>
+            <li><a href="trace.html"><i class="bi bi-diagram-3"></i> 可视化追溯</a></li>
+            <li><a href="node.html"><i class="bi bi-geo-alt"></i> 节点管理</a></li>
+            <li><a href="product.html" class="active"><i class="bi bi-bag"></i> 产品管理</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h3><i class="bi bi-bag"></i> 产品管理</h3>
+            <div>
+                <span class="text-muted">当前用户：管理员</span>
+                <span class="text-muted ms-3" id="currentTime"></span>
+            </div>
+        </div>
+
+        <div class="search-box">
+            <form id="searchForm">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">产品名称</label>
+                        <input type="text" class="form-control" id="productName" placeholder="请输入产品名称">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">分类</label>
+                        <select class="form-select" id="category">
+                            <option value="">全部分类</option>
+                            <option value="水果">水果</option>
+                            <option value="蔬菜">蔬菜</option>
+                            <option value="肉类">肉类</option>
+                            <option value="水产">水产</option>
+                            <option value="乳制品">乳制品</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                    <div class="col-md-5 d-flex align-items-end gap-2">
+                        <button type="submit" class="btn btn-primary flex-fill">
+                            <i class="bi bi-search"></i> 查询
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                            <i class="bi bi-arrow-clockwise"></i> 重置
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-box">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0"><i class="bi bi-list-task"></i> 产品列表</h5>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModal" onclick="openAddModal()">
+                    <i class="bi bi-plus-lg"></i> 新增产品
+                </button>
+            </div>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>产品编码</th>
+                        <th>产品名称</th>
+                        <th>分类</th>
+                        <th>单位</th>
+                        <th>最佳储存温度</th>
+                        <th>保质期</th>
+                        <th>描述</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="productTable">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle"><i class="bi bi-plus-lg"></i> 新增产品</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <input type="hidden" id="editId">
+                        <div class="mb-3">
+                            <label class="form-label">产品编码 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="editProductCode" placeholder="请输入产品编码" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">产品名称 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="editProductName" placeholder="请输入产品名称" required>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">分类 <span class="text-danger">*</span></label>
+                                <select class="form-select" id="editCategory" required>
+                                    <option value="">请选择分类</option>
+                                    <option value="水果">水果</option>
+                                    <option value="蔬菜">蔬菜</option>
+                                    <option value="肉类">肉类</option>
+                                    <option value="水产">水产</option>
+                                    <option value="乳制品">乳制品</option>
+                                    <option value="其他">其他</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">单位 <span class="text-danger">*</span></label>
+                                <select class="form-select" id="editUnit" required>
+                                    <option value="">请选择单位</option>
+                                    <option value="kg">kg</option>
+                                    <option value="吨">吨</option>
+                                    <option value="箱">箱</option>
+                                    <option value="件">件</option>
+                                    <option value="个">个</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">最佳储存温度(℃)</label>
+                                <input type="text" class="form-control" id="editOptimalTemperature" placeholder="例如：2-8">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">保质期(天)</label>
+                                <input type="number" class="form-control" id="editShelfLife" placeholder="请输入保质期">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">描述</label>
+                            <textarea class="form-control" id="editDescription" rows="3" placeholder="请输入产品描述"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="submitEdit()">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        axios.defaults.baseURL = API_BASE;
+
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = now.toLocaleString('zh-CN');
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        function getCategoryBadge(category) {
+            const colors = {
+                '水果': 'badge-success',
+                '蔬菜': 'badge-info',
+                '肉类': 'badge-warning',
+                '水产': 'badge-info',
+                '乳制品': 'badge-warning',
+                '其他': 'badge-info'
+            };
+            return `<span class="badge ${colors[category] || 'badge-info'}">${category}</span>`;
+        }
+
+        async function loadProductList() {
+            try {
+                const params = {
+                    productName: document.getElementById('productName').value,
+                    category: document.getElementById('category').value
+                };
+                const res = await axios.get('/product/list', { params });
+                const data = res.data.data || [];
+                const tbody = document.getElementById('productTable');
+                tbody.innerHTML = data.map(item => `
+                    <tr>
+                        <td><span class="badge badge-info">${item.productCode}</span></td>
+                        <td>${item.productName}</td>
+                        <td>${getCategoryBadge(item.category)}</td>
+                        <td>${item.unit}</td>
+                        <td>${item.optimalTemperature || '-'}</td>
+                        <td>${item.shelfLife ? item.shelfLife + ' 天' : '-'}</td>
+                        <td>${item.description ? (item.description.length > 30 ? item.description.substring(0, 30) + '...' : item.description) : '-'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-info" onclick="openEditModal(${item.id})">
+                                <i class="bi bi-pencil"></i> 编辑
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteProduct(${item.id})">
+                                <i class="bi bi-trash"></i> 删除
+                            </button>
+                        </td>
+                    </tr>
+                `).join('') || '<tr><td colspan="8" class="text-center text-muted">暂无数据</td></tr>';
+            } catch (e) {
+                console.error('加载产品列表失败', e);
+            }
+        }
+
+        function openAddModal() {
+            document.getElementById('modalTitle').innerHTML = '<i class="bi bi-plus-lg"></i> 新增产品';
+            document.getElementById('editId').value = '';
+            document.getElementById('editForm').reset();
+        }
+
+        async function openEditModal(id) {
+            try {
+                const res = await axios.get('/product/detail?id=' + id);
+                const data = res.data.data;
+                document.getElementById('modalTitle').innerHTML = '<i class="bi bi-pencil"></i> 编辑产品';
+                document.getElementById('editId').value = data.id;
+                document.getElementById('editProductCode').value = data.productCode;
+                document.getElementById('editProductName').value = data.productName;
+                document.getElementById('editCategory').value = data.category;
+                document.getElementById('editUnit').value = data.unit;
+                document.getElementById('editOptimalTemperature').value = data.optimalTemperature || '';
+                document.getElementById('editShelfLife').value = data.shelfLife || '';
+                document.getElementById('editDescription').value = data.description || '';
+                new bootstrap.Modal(document.getElementById('editModal')).show();
+            } catch (e) {
+                console.error('加载产品详情失败', e);
+            }
+        }
+
+        async function submitEdit() {
+            const form = document.getElementById('editForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            const id = document.getElementById('editId').value;
+            try {
+                const data = {
+                    productCode: document.getElementById('editProductCode').value,
+                    productName: document.getElementById('editProductName').value,
+                    category: document.getElementById('editCategory').value,
+                    unit: document.getElementById('editUnit').value,
+                    optimalTemperature: document.getElementById('editOptimalTemperature').value,
+                    shelfLife: document.getElementById('editShelfLife').value,
+                    description: document.getElementById('editDescription').value
+                };
+                if (id) {
+                    data.id = id;
+                    await axios.put('/product/update', data);
+                } else {
+                    await axios.post('/product/add', data);
+                }
+                alert(id ? '修改成功' : '新增成功');
+                bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
+                loadProductList();
+            } catch (e) {
+                console.error('提交失败', e);
+                alert('提交失败：' + (e.response?.data?.message || e.message));
+            }
+        }
+
+        async function deleteProduct(id) {
+            if (!confirm('确定要删除该产品吗？')) return;
+            try {
+                await axios.delete('/product/delete?id=' + id);
+                alert('删除成功');
+                loadProductList();
+            } catch (e) {
+                console.error('删除失败', e);
+                alert('删除失败：' + (e.response?.data?.message || e.message));
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('searchForm').reset();
+            loadProductList();
+        }
+
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            loadProductList();
+        });
+
+        (async function init() {
+            await loadProductList();
+        })();
+    </script>
+</body>
+</html>

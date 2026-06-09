@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>损耗记录 - 农产品冷链损耗归因分析系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; }
+        .sidebar {
+            width: 220px;
+            height: 100vh;
+            background: linear-gradient(180deg, #001529 0%, #002140 100%);
+            position: fixed;
+            left: 0;
+            top: 0;
+            color: #fff;
+            padding-top: 20px;
+        }
+        .sidebar .logo {
+            text-align: center;
+            padding: 20px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+        .sidebar .logo h4 { font-size: 16px; font-weight: bold; margin: 0; }
+        .sidebar .logo p { font-size: 12px; opacity: 0.7; margin: 5px 0 0; }
+        .sidebar .menu { list-style: none; }
+        .sidebar .menu li { padding: 0; }
+        .sidebar .menu li a {
+            display: block;
+            padding: 14px 25px;
+            color: rgba(255,255,255,0.75);
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        .sidebar .menu li a:hover,
+        .sidebar .menu li a.active {
+            background: rgba(24, 144, 255, 0.2);
+            color: #fff;
+            border-left-color: #1890ff;
+        }
+        .sidebar .menu li a i { margin-right: 10px; }
+        .main-content {
+            margin-left: 220px;
+            padding: 20px;
+        }
+        .header {
+            background: #fff;
+            padding: 15px 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .header h3 { margin: 0; color: #333; }
+        .search-box {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .table-box {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: normal;
+        }
+        .badge-success { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+        .badge-warning { background: #fffbe6; color: #faad14; border: 1px solid #ffe58f; }
+        .badge-danger { background: #fff1f0; color: #f5222d; border: 1px solid #ffa39e; }
+        .badge-info { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
+        .pagination { justify-content: center; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <h4><i class="bi bi-snow2"></i> 冷链损耗分析</h4>
+            <p>Cold Chain Loss Analysis</p>
+        </div>
+        <ul class="menu">
+            <li><a href="index.html"><i class="bi bi-speedometer2"></i> 数据概览</a></li>
+            <li><a href="batch.html"><i class="bi bi-box-seam"></i> 批次管理</a></li>
+            <li><a href="flow.html"><i class="bi bi-arrow-left-right"></i> 流转记录</a></li>
+            <li><a href="loss.html" class="active"><i class="bi bi-exclamation-triangle"></i> 损耗记录</a></li>
+            <li><a href="attribution.html"><i class="bi bi-search"></i> 归因分析</a></li>
+            <li><a href="trace.html"><i class="bi bi-diagram-3"></i> 可视化追溯</a></li>
+            <li><a href="node.html"><i class="bi bi-geo-alt"></i> 节点管理</a></li>
+            <li><a href="product.html"><i class="bi bi-bag"></i> 产品管理</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h3><i class="bi bi-exclamation-triangle"></i> 损耗记录</h3>
+            <div>
+                <span class="text-muted">当前用户：管理员</span>
+                <span class="text-muted ms-3" id="currentTime"></span>
+            </div>
+        </div>
+
+        <div class="search-box">
+            <form id="searchForm">
+                <div class="row g-3">
+                    <div class="col-md-2">
+                        <label class="form-label">批次号</label>
+                        <input type="text" class="form-control" id="batchNo" placeholder="请输入批次号">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">损耗类型</label>
+                        <select class="form-select" id="lossType">
+                            <option value="">全部类型</option>
+                            <option value="temperature">温度异常</option>
+                            <option value="humidity">湿度异常</option>
+                            <option value="collision">碰撞损伤</option>
+                            <option value="expired">过期变质</option>
+                            <option value="pest">病虫害</option>
+                            <option value="other">其他</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">状态</label>
+                        <select class="form-select" id="status">
+                            <option value="">全部状态</option>
+                            <option value="pending">待处理</option>
+                            <option value="processed">已处理</option>
+                            <option value="attributed">已归因</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">开始日期</label>
+                        <input type="date" class="form-control" id="startDate">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">结束日期</label>
+                        <input type="date" class="form-control" id="endDate">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end gap-2">
+                        <button type="submit" class="btn btn-primary flex-fill">
+                            <i class="bi bi-search"></i> 查询
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                            <i class="bi bi-arrow-clockwise"></i> 重置
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-box">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0"><i class="bi bi-list-task"></i> 损耗记录列表</h5>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
+                    <i class="bi bi-plus-lg"></i> 新增损耗
+                </button>
+            </div>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>批次号</th>
+                        <th>产品</th>
+                        <th>节点</th>
+                        <th>损耗数量</th>
+                        <th>损耗率</th>
+                        <th>损耗类型</th>
+                        <th>状态</th>
+                        <th>发现时间</th>
+                        <th>是否归因</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="lossTable">
+                </tbody>
+            </table>
+            <nav>
+                <ul class="pagination" id="pagination">
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-plus-lg"></i> 新增损耗记录</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addForm">
+                        <div class="mb-3">
+                            <label class="form-label">批次 <span class="text-danger">*</span></label>
+                            <select class="form-select" id="addBatchId" required onchange="loadBatchFlows()">
+                                <option value="">请选择批次</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">节点 <span class="text-danger">*</span></label>
+                            <select class="form-select" id="addNodeId" required>
+                                <option value="">请选择节点</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">流转记录（可选）</label>
+                            <select class="form-select" id="addFlowId">
+                                <option value="">请选择流转记录</option>
+                            </select>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">损耗数量 <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" class="form-control" id="addQuantity" placeholder="请输入损耗数量" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">损耗类型 <span class="text-danger">*</span></label>
+                                <select class="form-select" id="addLossType" required>
+                                    <option value="">请选择损耗类型</option>
+                                    <option value="temperature">温度异常</option>
+                                    <option value="humidity">湿度异常</option>
+                                    <option value="collision">碰撞损伤</option>
+                                    <option value="expired">过期变质</option>
+                                    <option value="pest">病虫害</option>
+                                    <option value="other">其他</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">损耗原因</label>
+                            <input type="text" class="form-control" id="addReason" placeholder="请输入损耗原因">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">发现时间 <span class="text-danger">*</span></label>
+                            <input type="datetime-local" class="form-control" id="addDiscoverTime" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">备注</label>
+                            <textarea class="form-control" id="addRemark" rows="3" placeholder="请输入备注"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="submitAdd()">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        axios.defaults.baseURL = API_BASE;
+
+        let currentPage = 1;
+        let pageSize = 10;
+        let total = 0;
+
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = now.toLocaleString('zh-CN');
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        function getLossTypeText(type) {
+            const map = {
+                'temperature': '温度异常',
+                'humidity': '湿度异常',
+                'collision': '碰撞损伤',
+                'expired': '过期变质',
+                'pest': '病虫害',
+                'other': '其他'
+            };
+            return map[type] || type;
+        }
+
+        function getStatusText(status) {
+            const map = {
+                'pending': '<span class="badge badge-warning">待处理</span>',
+                'processed': '<span class="badge badge-info">已处理</span>',
+                'attributed': '<span class="badge badge-success">已归因</span>'
+            };
+            return map[status] || status;
+        }
+
+        async function loadBatches() {
+            try {
+                const res = await axios.get('/batch/list');
+                const data = res.data.data;
+                const options = data.map(b => `<option value="${b.id}">${b.batchNo} - ${b.productName}</option>`).join('');
+                document.getElementById('addBatchId').innerHTML = '<option value="">请选择批次</option>' + options;
+            } catch (e) {
+                console.error('加载批次列表失败', e);
+            }
+        }
+
+        async function loadNodes() {
+            try {
+                const res = await axios.get('/node/list');
+                const data = res.data.data;
+                const options = data.map(n => `<option value="${n.id}">${n.nodeName}</option>`).join('');
+                document.getElementById('addNodeId').innerHTML = '<option value="">请选择节点</option>' + options;
+            } catch (e) {
+                console.error('加载节点列表失败', e);
+            }
+        }
+
+        async function loadBatchFlows() {
+            const batchId = document.getElementById('addBatchId').value;
+            const flowSelect = document.getElementById('addFlowId');
+            if (!batchId) {
+                flowSelect.innerHTML = '<option value="">请选择流转记录</option>';
+                return;
+            }
+            try {
+                const res = await axios.get('/flow/list', { params: { batchId } });
+                const data = res.data.data || [];
+                const options = data.map(f => `<option value="${f.id}">${f.sourceNodeName} → ${f.targetNodeName} (${f.operateTime})</option>`).join('');
+                flowSelect.innerHTML = '<option value="">请选择流转记录</option>' + options;
+            } catch (e) {
+                console.error('加载流转记录失败', e);
+            }
+        }
+
+        async function loadLossList() {
+            try {
+                const params = {
+                    pageNum: currentPage,
+                    pageSize: pageSize,
+                    batchNo: document.getElementById('batchNo').value,
+                    lossType: document.getElementById('lossType').value,
+                    status: document.getElementById('status').value,
+                    startDate: document.getElementById('startDate').value,
+                    endDate: document.getElementById('endDate').value
+                };
+                const res = await axios.get('/loss/page', { params });
+                const data = res.data.data;
+                total = data.total;
+                const records = data.records;
+                const tbody = document.getElementById('lossTable');
+                tbody.innerHTML = records.map(item => `
+                    <tr>
+                        <td><span class="badge badge-info">${item.batchNo}</span></td>
+                        <td>${item.productName}</td>
+                        <td>${item.nodeName}</td>
+                        <td class="text-danger fw-bold">${item.lossQuantity}</td>
+                        <td>${item.lossRate}%</td>
+                        <td><span class="badge badge-warning">${getLossTypeText(item.lossType)}</span></td>
+                        <td>${getStatusText(item.status)}</td>
+                        <td>${item.discoverTime}</td>
+                        <td>${item.hasAttribution ? '<span class="badge badge-success">是</span>' : '<span class="badge badge-secondary">否</span>'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-warning" onclick="goAttribution(${item.id})">
+                                <i class="bi bi-search"></i> 归因
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteLoss(${item.id})">
+                                <i class="bi bi-trash"></i> 删除
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+                renderPagination();
+            } catch (e) {
+                console.error('加载损耗记录失败', e);
+            }
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(total / pageSize);
+            const pagination = document.getElementById('pagination');
+            let html = '';
+            html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="javascript:goPage(${currentPage - 1})">上一页</a></li>`;
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    html += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="javascript:goPage(${i})">${i}</a></li>`;
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    html += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                }
+            }
+            html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="javascript:goPage(${currentPage + 1})">下一页</a></li>`;
+            pagination.innerHTML = html;
+        }
+
+        function goPage(page) {
+            if (page < 1) return;
+            currentPage = page;
+            loadLossList();
+        }
+
+        function resetForm() {
+            document.getElementById('searchForm').reset();
+            currentPage = 1;
+            loadLossList();
+        }
+
+        async function submitAdd() {
+            const form = document.getElementById('addForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            try {
+                const data = {
+                    batchId: document.getElementById('addBatchId').value,
+                    nodeId: document.getElementById('addNodeId').value,
+                    flowId: document.getElementById('addFlowId').value || null,
+                    lossQuantity: document.getElementById('addQuantity').value,
+                    lossType: document.getElementById('addLossType').value,
+                    lossReason: document.getElementById('addReason').value,
+                    discoverTime: document.getElementById('addDiscoverTime').value,
+                    remark: document.getElementById('addRemark').value
+                };
+                await axios.post('/loss/add', data);
+                alert('新增成功');
+                bootstrap.Modal.getInstance(document.getElementById('addModal')).hide();
+                form.reset();
+                loadLossList();
+            } catch (e) {
+                console.error('新增损耗失败', e);
+                alert('新增失败：' + (e.response?.data?.message || e.message));
+            }
+        }
+
+        function goAttribution(lossId) {
+            window.location.href = 'attribution.html?lossId=' + lossId;
+        }
+
+        async function deleteLoss(id) {
+            if (!confirm('确定要删除该损耗记录吗？')) return;
+            try {
+                await axios.delete('/loss/delete?id=' + id);
+                alert('删除成功');
+                loadLossList();
+            } catch (e) {
+                console.error('删除失败', e);
+                alert('删除失败：' + (e.response?.data?.message || e.message));
+            }
+        }
+
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            currentPage = 1;
+            loadLossList();
+        });
+
+        (async function init() {
+            await loadBatches();
+            await loadNodes();
+            await loadLossList();
+        })();
+    </script>
+</body>
+</html>
