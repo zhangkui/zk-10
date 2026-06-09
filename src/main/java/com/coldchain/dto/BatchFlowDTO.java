@@ -1,5 +1,6 @@
 package com.coldchain.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -18,6 +19,7 @@ public class BatchFlowDTO {
 
     private Long operatorId;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm[:ss]")
     private LocalDateTime operateTime;
 
     private BigDecimal temperature;

@@ -25,8 +25,8 @@ public class LossRecordController {
 
     @ApiOperation("获取所有损耗记录列表")
     @GetMapping("/list")
-    public Result<List<Map<String, Object>>> list() {
-        return Result.success(lossRecordService.getLossList());
+    public Result<List<Map<String, Object>>> list(@RequestParam(required = false) Long batchId) {
+        return Result.success(lossRecordService.getLossList(batchId));
     }
 
     @ApiOperation("分页查询损耗记录")
@@ -36,8 +36,8 @@ public class LossRecordController {
     }
 
     @ApiOperation("获取损耗详情")
-    @GetMapping("/{id}")
-    public Result<LossRecord> getById(@ApiParam("损耗记录ID") @PathVariable Long id) {
+    @GetMapping("/detail")
+    public Result<LossRecord> getById(@ApiParam("损耗记录ID") @RequestParam Long id) {
         return Result.success(lossRecordService.getById(id));
     }
 

@@ -1,5 +1,6 @@
 package com.coldchain.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -20,6 +21,7 @@ public class LossRecordDTO {
 
     private String lossReason;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm[:ss]")
     private LocalDateTime discoverTime;
 
     private Long operatorId;

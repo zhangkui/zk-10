@@ -16,10 +16,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -67,6 +70,19 @@ public class BatchFlowServiceImpl extends ServiceImpl<BatchFlowMapper, BatchFlow
 
     @Override
     public boolean addFlow(BatchFlowDTO dto) {
+        if (dto.getBatchId() == null) {
+            throw new IllegalArgumentException("批次不能为空");
+        }
+        if (dto.getToNodeId() == null) {
+            throw new IllegalArgumentException("目标节点不能为空");
+        }
+        if (dto.getOperatorId() == null) {
+            throw new IllegalArgumentException("操作人不能为空");
+        }
+        if (dto.getFlowQuantity() == null || dto.getFlowQuantity().signum() <= 0) {
+            throw new IllegalArgumentException("流转数量必须大于 0");
+        }
+
         Batch batch = batchMapper.selectById(dto.getBatchId());
         if (batch == null) {
             throw new RuntimeException("批次不存在");
@@ -89,7 +105,7 @@ public class BatchFlowServiceImpl extends ServiceImpl<BatchFlowMapper, BatchFlow
 
         int result = baseMapper.insert(batchFlow);
         if (result > 0) {
-            batch.setRemainingQuantity(batch.getRemainingQuantity().subtract(dto.getFlowQuantity()));
+            batch.setStatus("in_transit");
             batch.setUpdateTime(LocalDateTime.now());
             batchMapper.updateById(batch);
         }
@@ -115,6 +131,26 @@ public class BatchFlowServiceImpl extends ServiceImpl<BatchFlowMapper, BatchFlow
         LambdaQueryWrapper<BatchFlow> wrapper = new LambdaQueryWrapper<>();
         if (batchId != null) {
             wrapper.eq(BatchFlow::getBatchId, batchId);
+        }
+        if (dto.getBatchId() != null) {
+            wrapper.eq(BatchFlow::getBatchId, dto.getBatchId());
+        }
+        if (dto.getBatchNo() != null && !dto.getBatchNo().isBlank()) {
+            List<Long> batchIds = batchMapper.selectList(new LambdaQueryWrapper<Batch>()
+                            .like(Batch::getBatchNo, dto.getBatchNo().trim()))
+                    .stream()
+                    .map(Batch::getId)
+                    .collect(Collectors.toList());
+            wrapper.in(BatchFlow::getBatchId, batchIds.isEmpty() ? Collections.singletonList(-1L) : batchIds);
+        }
+        if (dto.getNodeId() != null) {
+            wrapper.and(w -> w.eq(BatchFlow::getFromNodeId, dto.getNodeId()).or().eq(BatchFlow::getToNodeId, dto.getNodeId()));
+        }
+        if (dto.getStartDate() != null && !dto.getStartDate().isBlank()) {
+            wrapper.ge(BatchFlow::getOperateTime, LocalDateTime.of(LocalDate.parse(dto.getStartDate()), LocalTime.MIN));
+        }
+        if (dto.getEndDate() != null && !dto.getEndDate().isBlank()) {
+            wrapper.le(BatchFlow::getOperateTime, LocalDateTime.of(LocalDate.parse(dto.getEndDate()), LocalTime.MAX));
         }
         wrapper.orderByDesc(BatchFlow::getOperateTime);
         Page<Map<String, Object>> result = (Page<Map<String, Object>>) baseMapper.selectFlowDetailPage(page, wrapper);

@@ -12,6 +12,8 @@ public interface ProductService {
 
     List<Product> list();
 
+    List<Product> list(String productName, String category);
+
     PageResult<Product> page(PageQueryDTO dto);
 
     boolean save(Product entity);

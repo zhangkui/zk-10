@@ -55,6 +55,10 @@ public class BatchServiceImpl extends ServiceImpl<BatchMapper, Batch> implements
 
     @Override
     public boolean update(Batch entity) {
+        if (entity.getStatus() != null && !entity.getStatus().isBlank()) {
+            entity.setStatus(entity.getStatus().trim());
+        }
+        entity.setUpdateTime(LocalDateTime.now());
         return baseMapper.updateById(entity) > 0;
     }
 
@@ -65,12 +69,19 @@ public class BatchServiceImpl extends ServiceImpl<BatchMapper, Batch> implements
 
     @Override
     public boolean createBatch(Batch batch) {
+        if (batch.getProductId() == null) {
+            throw new IllegalArgumentException("产品不能为空");
+        }
+        if (batch.getQuantity() == null || batch.getQuantity().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("数量必须大于 0");
+        }
+
         String batchNo = "B" + DateUtil.format(LocalDateTime.now(), "yyyyMMdd") + IdUtil.getSnowflakeNextIdStr().substring(8);
         batch.setBatchNo(batchNo);
         batch.setRemainingQuantity(batch.getQuantity());
         batch.setTotalLoss(BigDecimal.ZERO);
         batch.setLossRate(BigDecimal.ZERO);
-        batch.setStatus("ACTIVE");
+        batch.setStatus(batch.getStatus() == null || batch.getStatus().isBlank() ? "in_storage" : batch.getStatus().trim());
         batch.setCreateTime(LocalDateTime.now());
         batch.setUpdateTime(LocalDateTime.now());
         return baseMapper.insert(batch) > 0;
@@ -80,20 +91,20 @@ public class BatchServiceImpl extends ServiceImpl<BatchMapper, Batch> implements
     public PageResult<Map<String, Object>> getBatchDetailPage(BatchQueryDTO dto) {
         Page<Map<String, Object>> page = new Page<>(dto.getPageNum(), dto.getPageSize());
         LambdaQueryWrapper<Batch> wrapper = new LambdaQueryWrapper<>();
-        if (dto.getBatchNo() != null && !dto.getBatchNo().isEmpty()) {
-            wrapper.like(Batch::getBatchNo, dto.getBatchNo());
+        if (dto.getBatchNo() != null && !dto.getBatchNo().isBlank()) {
+            wrapper.like(Batch::getBatchNo, dto.getBatchNo().trim());
         }
         if (dto.getProductId() != null) {
             wrapper.eq(Batch::getProductId, dto.getProductId());
         }
-        if (dto.getStatus() != null && !dto.getStatus().isEmpty()) {
-            wrapper.eq(Batch::getStatus, dto.getStatus());
+        if (dto.getStatus() != null && !dto.getStatus().isBlank()) {
+            wrapper.eq(Batch::getStatus, dto.getStatus().trim());
         }
-        if (dto.getStartDate() != null && !dto.getStartDate().isEmpty()) {
+        if (dto.getStartDate() != null && !dto.getStartDate().isBlank()) {
             LocalDateTime startDateTime = LocalDateTime.of(LocalDate.parse(dto.getStartDate()), LocalTime.MIN);
             wrapper.ge(Batch::getCreateTime, startDateTime);
         }
-        if (dto.getEndDate() != null && !dto.getEndDate().isEmpty()) {
+        if (dto.getEndDate() != null && !dto.getEndDate().isBlank()) {
             LocalDateTime endDateTime = LocalDateTime.of(LocalDate.parse(dto.getEndDate()), LocalTime.MAX);
             wrapper.le(Batch::getCreateTime, endDateTime);
         }

@@ -29,4 +29,6 @@ public interface ResponsibilityAttributionService {
     PageResult<Map<String, Object>> getAttributionPage(PageQueryDTO dto);
 
     Map<String, Object> getAttributionDetail(Long id);
+
+    List<Map<String, Object>> getAttributionList(Long batchId);
 }

@@ -6,12 +6,15 @@ import com.coldchain.dto.BatchQueryDTO;
 import com.coldchain.entity.Batch;
 import com.coldchain.service.BatchFlowService;
 import com.coldchain.service.BatchService;
+import com.coldchain.service.LossRecordService;
+import com.coldchain.service.ResponsibilityAttributionService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +28,12 @@ public class BatchController {
 
     @Autowired
     private BatchFlowService batchFlowService;
+
+    @Autowired
+    private LossRecordService lossRecordService;
+
+    @Autowired
+    private ResponsibilityAttributionService attributionService;
 
     @ApiOperation("获取所有批次列表")
     @GetMapping("/list")
@@ -67,7 +76,12 @@ public class BatchController {
 
     @ApiOperation("获取批次追溯链路")
     @GetMapping("/{id}/trace")
-    public Result<List<Map<String, Object>>> getTrace(@ApiParam("批次ID") @PathVariable Long id) {
-        return Result.success(batchFlowService.getBatchFlowTrace(id));
+    public Result<Map<String, Object>> getTrace(@ApiParam("批次ID") @PathVariable Long id) {
+        Map<String, Object> trace = new HashMap<>();
+        trace.put("batch", batchService.getBatchDetail(id));
+        trace.put("flows", batchFlowService.getBatchFlowTrace(id));
+        trace.put("losses", lossRecordService.getLossList(id));
+        trace.put("attributions", attributionService.getAttributionList(id));
+        return Result.success(trace);
     }
 }

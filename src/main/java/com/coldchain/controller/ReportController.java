@@ -9,7 +9,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -40,12 +43,12 @@ public class ReportController {
         Long totalBatchCount = batchMapper.selectTotalBatchCount();
         BigDecimal totalLossQuantity = batchMapper.selectTotalLossQuantity();
         BigDecimal avgLossRate = batchMapper.selectAvgLossRate();
-        Long nodeCount = coldChainNodeMapper.selectActiveNodeCount();
+        Long activeNodeCount = coldChainNodeMapper.selectActiveNodeCount();
 
         data.put("totalBatchCount", totalBatchCount != null ? totalBatchCount : 0L);
         data.put("totalLossQuantity", totalLossQuantity != null ? totalLossQuantity : BigDecimal.ZERO);
         data.put("avgLossRate", avgLossRate != null ? avgLossRate : BigDecimal.ZERO);
-        data.put("nodeCount", nodeCount != null ? nodeCount : 0L);
+        data.put("activeNodeCount", activeNodeCount != null ? activeNodeCount : 0L);
 
         return Result.success(data);
     }

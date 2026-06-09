@@ -18,9 +18,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -69,9 +73,25 @@ public class LossRecordServiceImpl extends ServiceImpl<LossRecordMapper, LossRec
 
     @Override
     public boolean addLossRecord(LossRecordDTO dto) {
+        if (dto.getBatchId() == null) {
+            throw new IllegalArgumentException("批次不能为空");
+        }
+        if (dto.getNodeId() == null) {
+            throw new IllegalArgumentException("节点不能为空");
+        }
+        if (dto.getOperatorId() == null) {
+            throw new IllegalArgumentException("操作人不能为空");
+        }
+        if (dto.getLossQuantity() == null || dto.getLossQuantity().signum() <= 0) {
+            throw new IllegalArgumentException("损耗数量必须大于 0");
+        }
+
         Batch batch = batchMapper.selectById(dto.getBatchId());
         if (batch == null) {
             throw new RuntimeException("批次不存在");
+        }
+        if (batch.getRemainingQuantity().compareTo(dto.getLossQuantity()) < 0) {
+            throw new RuntimeException("损耗数量不能大于批次剩余数量");
         }
 
         LossRecord lossRecord = new LossRecord();
@@ -84,7 +104,7 @@ public class LossRecordServiceImpl extends ServiceImpl<LossRecordMapper, LossRec
         lossRecord.setDiscoverTime(dto.getDiscoverTime() != null ? dto.getDiscoverTime() : LocalDateTime.now());
         lossRecord.setOperatorId(dto.getOperatorId());
         lossRecord.setIsAttributed(0);
-        lossRecord.setStatus("PENDING");
+        lossRecord.setStatus("pending");
         lossRecord.setRemark(dto.getRemark());
         lossRecord.setCreateTime(LocalDateTime.now());
         lossRecord.setUpdateTime(LocalDateTime.now());
@@ -101,6 +121,7 @@ public class LossRecordServiceImpl extends ServiceImpl<LossRecordMapper, LossRec
             batch.setTotalLoss(newTotalLoss);
             batch.setLossRate(newLossRate);
             batch.setRemainingQuantity(batch.getRemainingQuantity().subtract(dto.getLossQuantity()));
+            batch.setStatus(batch.getRemainingQuantity().subtract(dto.getLossQuantity()).signum() > 0 ? batch.getStatus() : "completed");
             batch.setUpdateTime(LocalDateTime.now());
             batchMapper.updateById(batch);
         }
@@ -111,9 +132,25 @@ public class LossRecordServiceImpl extends ServiceImpl<LossRecordMapper, LossRec
     public PageResult<Map<String, Object>> getLossRecordPage(PageQueryDTO dto) {
         Page<Map<String, Object>> page = new Page<>(dto.getPageNum(), dto.getPageSize());
         LambdaQueryWrapper<LossRecord> wrapper = new LambdaQueryWrapper<>();
-        if (dto.getKeyword() != null && !dto.getKeyword().isEmpty()) {
-            wrapper.and(w -> w.like(LossRecord::getLossType, dto.getKeyword())
-                    .or().like(LossRecord::getLossReason, dto.getKeyword()));
+        if (dto.getBatchNo() != null && !dto.getBatchNo().isBlank()) {
+            List<Long> batchIds = batchMapper.selectList(new LambdaQueryWrapper<Batch>()
+                            .like(Batch::getBatchNo, dto.getBatchNo().trim()))
+                    .stream()
+                    .map(Batch::getId)
+                    .collect(Collectors.toList());
+            wrapper.in(LossRecord::getBatchId, batchIds.isEmpty() ? Collections.singletonList(-1L) : batchIds);
+        }
+        if (dto.getLossType() != null && !dto.getLossType().isBlank()) {
+            wrapper.eq(LossRecord::getLossType, dto.getLossType().trim());
+        }
+        if (dto.getStatus() != null && !dto.getStatus().isBlank()) {
+            wrapper.eq(LossRecord::getStatus, dto.getStatus().trim());
+        }
+        if (dto.getStartDate() != null && !dto.getStartDate().isBlank()) {
+            wrapper.ge(LossRecord::getDiscoverTime, LocalDateTime.of(LocalDate.parse(dto.getStartDate()), LocalTime.MIN));
+        }
+        if (dto.getEndDate() != null && !dto.getEndDate().isBlank()) {
+            wrapper.le(LossRecord::getDiscoverTime, LocalDateTime.of(LocalDate.parse(dto.getEndDate()), LocalTime.MAX));
         }
         wrapper.orderByDesc(LossRecord::getDiscoverTime);
         Page<Map<String, Object>> result = (Page<Map<String, Object>>) baseMapper.selectLossRecordPage(page, wrapper);
@@ -121,7 +158,10 @@ public class LossRecordServiceImpl extends ServiceImpl<LossRecordMapper, LossRec
     }
 
     @Override
-    public List<Map<String, Object>> getLossList() {
+    public List<Map<String, Object>> getLossList(Long batchId) {
+        if (batchId != null) {
+            return baseMapper.selectLossListByBatchId(batchId);
+        }
         return baseMapper.selectLossList();
     }
 }

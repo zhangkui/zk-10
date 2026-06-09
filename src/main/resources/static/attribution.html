@@ -3,186 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>归因分析 - 农产品冷链损耗归因分析系统</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; }
-        .sidebar {
-            width: 220px;
-            height: 100vh;
-            background: linear-gradient(180deg, #001529 0%, #002140 100%);
-            position: fixed;
-            left: 0;
-            top: 0;
-            color: #fff;
-            padding-top: 20px;
-        }
-        .sidebar .logo {
-            text-align: center;
-            padding: 20px 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            margin-bottom: 20px;
-        }
-        .sidebar .logo h4 { font-size: 16px; font-weight: bold; margin: 0; }
-        .sidebar .logo p { font-size: 12px; opacity: 0.7; margin: 5px 0 0; }
-        .sidebar .menu { list-style: none; }
-        .sidebar .menu li { padding: 0; }
-        .sidebar .menu li a {
-            display: block;
-            padding: 14px 25px;
-            color: rgba(255,255,255,0.75);
-            text-decoration: none;
-            transition: all 0.3s;
-            border-left: 3px solid transparent;
-        }
-        .sidebar .menu li a:hover,
-        .sidebar .menu li a.active {
-            background: rgba(24, 144, 255, 0.2);
-            color: #fff;
-            border-left-color: #1890ff;
-        }
-        .sidebar .menu li a i { margin-right: 10px; }
-        .main-content {
-            margin-left: 220px;
-            padding: 20px;
-        }
-        .header {
-            background: #fff;
-            padding: 15px 25px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }
-        .header h3 { margin: 0; color: #333; }
-        .search-box {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }
-        .table-box {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }
-        .badge {
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: normal;
-        }
-        .badge-success { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
-        .badge-warning { background: #fffbe6; color: #faad14; border: 1px solid #ffe58f; }
-        .badge-danger { background: #fff1f0; color: #f5222d; border: 1px solid #ffa39e; }
-        .badge-info { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
-        .pagination { justify-content: center; margin-top: 20px; }
-        .confidence-bar {
-            height: 8px;
-            background: #e9ecef;
-            border-radius: 4px;
-            overflow: hidden;
-            min-width: 100px;
-        }
-        .confidence-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #52c41a, #faad14, #f5222d);
-            transition: width 0.3s;
-        }
-    </style>
+    <title>归因分析</title>
+    <link rel="stylesheet" href="/assets/common.css">
 </head>
 <body>
-    <div class="sidebar">
-        <div class="logo">
-            <h4><i class="bi bi-snow2"></i> 冷链损耗分析</h4>
-            <p>Cold Chain Loss Analysis</p>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="brand">
+            <h1>冷链损耗分析</h1>
+            <p>农产品冷链损耗归因分析系统</p>
         </div>
-        <ul class="menu">
-            <li><a href="index.html"><i class="bi bi-speedometer2"></i> 数据概览</a></li>
-            <li><a href="batch.html"><i class="bi bi-box-seam"></i> 批次管理</a></li>
-            <li><a href="flow.html"><i class="bi bi-arrow-left-right"></i> 流转记录</a></li>
-            <li><a href="loss.html"><i class="bi bi-exclamation-triangle"></i> 损耗记录</a></li>
-            <li><a href="attribution.html" class="active"><i class="bi bi-search"></i> 归因分析</a></li>
-            <li><a href="trace.html"><i class="bi bi-diagram-3"></i> 可视化追溯</a></li>
-            <li><a href="node.html"><i class="bi bi-geo-alt"></i> 节点管理</a></li>
-            <li><a href="product.html"><i class="bi bi-bag"></i> 产品管理</a></li>
-        </ul>
-    </div>
+        <nav class="nav">
+            <a href="/index.html">数据概览</a>
+            <a href="/batch.html">批次管理</a>
+            <a href="/flow.html">流转记录</a>
+            <a href="/loss.html">损耗记录</a>
+            <a href="/attribution.html" class="active">归因分析</a>
+            <a href="/trace.html">追溯链路</a>
+            <a href="/node.html">节点管理</a>
+            <a href="/product.html">产品管理</a>
+        </nav>
+    </aside>
 
-    <div class="main-content">
-        <div class="header">
-            <h3><i class="bi bi-search"></i> 归因分析</h3>
+    <main class="main">
+        <section class="topbar">
             <div>
-                <span class="text-muted">当前用户：管理员</span>
-                <span class="text-muted ms-3" id="currentTime"></span>
+                <h2>归因分析</h2>
+                <div class="meta">查看归因结果，支持自动分析并新增归因记录</div>
             </div>
-        </div>
+            <div class="meta" id="currentTime"></div>
+        </section>
 
-        <div class="search-box">
-            <form id="searchForm">
-                <div class="row g-3">
-                    <div class="col-md-2">
-                        <label class="form-label">批次号</label>
-                        <input type="text" class="form-control" id="batchNo" placeholder="请输入批次号">
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">责任类型</label>
-                        <select class="form-select" id="responsibilityType">
-                            <option value="">全部类型</option>
-                            <option value="温度控制不当">温度控制不当</option>
-                            <option value="操作失误">操作失误</option>
-                            <option value="设备故障">设备故障</option>
-                            <option value="延迟">延迟</option>
-                            <option value="其他">其他</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">责任等级</label>
-                        <select class="form-select" id="responsibilityLevel">
-                            <option value="">全部等级</option>
-                            <option value="primary">主要责任</option>
-                            <option value="secondary">次要责任</option>
-                            <option value="none">无责任</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">状态</label>
-                        <select class="form-select" id="status">
-                            <option value="">全部状态</option>
-                            <option value="confirmed">已确认</option>
-                            <option value="appealed">已申诉</option>
-                            <option value="revised">已修正</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4 d-flex align-items-end gap-2">
-                        <button type="submit" class="btn btn-primary flex-fill">
-                            <i class="bi bi-search"></i> 查询
-                        </button>
-                        <button type="button" class="btn btn-secondary" onclick="resetForm()">
-                            <i class="bi bi-arrow-clockwise"></i> 重置
-                        </button>
-                    </div>
+        <section class="panel">
+            <form id="searchForm" class="form-grid">
+                <div class="field">
+                    <label for="batchNo">批次号</label>
+                    <input id="batchNo" name="batchNo" placeholder="输入批次号">
+                </div>
+                <div class="field">
+                    <label for="responsibilityType">责任类型</label>
+                    <select id="responsibilityType" name="responsibilityType">
+                        <option value="">全部类型</option>
+                        <option value="温度控制不当">温度控制不当</option>
+                        <option value="仓储管理不当">仓储管理不当</option>
+                        <option value="运输时长过长">运输时长过长</option>
+                        <option value="操作失误">操作失误</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="responsibilityLevel">责任等级</label>
+                    <select id="responsibilityLevel" name="responsibilityLevel">
+                        <option value="">全部等级</option>
+                        <option value="primary">主要责任</option>
+                        <option value="secondary">次要责任</option>
+                        <option value="none">无责任</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="status">状态</label>
+                    <select id="status" name="status">
+                        <option value="">全部状态</option>
+                        <option value="confirmed">已确认</option>
+                        <option value="appealed">已申诉</option>
+                        <option value="revised">已修订</option>
+                    </select>
+                </div>
+                <div class="actions">
+                    <button class="btn btn-primary" type="submit">查询</button>
+                    <button class="btn btn-secondary" type="button" id="resetBtn">重置</button>
                 </div>
             </form>
-        </div>
+        </section>
 
-        <div class="table-box">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="mb-0"><i class="bi bi-list-task"></i> 归因记录列表</h5>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
-                    <i class="bi bi-plus-lg"></i> 新增归因
-                </button>
+        <section class="panel">
+            <div class="panel-header">
+                <h3>归因列表</h3>
+                <button class="btn btn-primary" type="button" id="openAddBtn">新增归因</button>
             </div>
-            <table class="table table-hover">
-                <thead>
+            <div class="table-wrap">
+                <table>
+                    <thead>
                     <tr>
                         <th>批次号</th>
                         <th>损耗量</th>
@@ -194,331 +95,286 @@
                         <th>状态</th>
                         <th>操作</th>
                     </tr>
-                </thead>
-                <tbody id="attributionTable">
-                </tbody>
-            </table>
-            <nav>
-                <ul class="pagination" id="pagination">
-                </ul>
-            </nav>
-        </div>
-    </div>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+            <div class="pagination" id="pagination"></div>
+        </section>
+    </main>
+</div>
 
-    <div class="modal fade" id="addModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="bi bi-plus-lg"></i> 新增归因分析</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="addForm">
-                        <div class="mb-3">
-                            <label class="form-label">损耗记录 <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <select class="form-select" id="addLossId" required>
-                                    <option value="">请选择损耗记录</option>
-                                </select>
-                                <button type="button" class="btn btn-info" onclick="autoAnalyze()">
-                                    <i class="bi bi-magic"></i> 自动分析
-                                </button>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">责任方 <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="addResponsibleParty" placeholder="请输入责任方" required>
-                        </div>
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">责任类型 <span class="text-danger">*</span></label>
-                                <select class="form-select" id="addResponsibilityType" required>
-                                    <option value="">请选择责任类型</option>
-                                    <option value="温度控制不当">温度控制不当</option>
-                                    <option value="操作失误">操作失误</option>
-                                    <option value="设备故障">设备故障</option>
-                                    <option value="延迟">延迟</option>
-                                    <option value="其他">其他</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">责任等级 <span class="text-danger">*</span></label>
-                                <select class="form-select" id="addResponsibilityLevel" required>
-                                    <option value="">请选择责任等级</option>
-                                    <option value="primary">主要责任</option>
-                                    <option value="secondary">次要责任</option>
-                                    <option value="none">无责任</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">置信度(%) <span class="text-danger">*</span></label>
-                            <input type="number" min="0" max="100" class="form-control" id="addConfidence" placeholder="请输入置信度" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">分析依据</label>
-                            <textarea class="form-control" id="addAnalysisBasis" rows="3" placeholder="请输入分析依据"></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">建议</label>
-                            <textarea class="form-control" id="addSuggestion" rows="3" placeholder="请输入建议"></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-primary" onclick="submitAdd()">确定</button>
+<dialog id="editDialog">
+    <div class="dialog-body">
+        <div class="dialog-header">
+            <h3>新增归因分析</h3>
+            <button class="btn btn-ghost btn-sm" type="button" data-close="editDialog">关闭</button>
+        </div>
+        <form id="editForm" class="form-grid">
+            <div class="field" style="grid-column: 1 / -1;">
+                <label for="lossId">损耗记录</label>
+                <div class="toolbar">
+                    <select id="lossId" name="lossId" style="flex: 1;"></select>
+                    <button class="btn btn-secondary" type="button" id="analyzeBtn">自动分析</button>
                 </div>
             </div>
+            <div class="field">
+                <label for="responsibleParty">责任方</label>
+                <input id="responsibleParty" name="responsibleParty" placeholder="输入责任方">
+            </div>
+            <div class="field">
+                <label for="responsibilityTypeField">责任类型</label>
+                <select id="responsibilityTypeField" name="responsibilityType">
+                    <option value="">请选择责任类型</option>
+                    <option value="温度控制不当">温度控制不当</option>
+                    <option value="仓储管理不当">仓储管理不当</option>
+                    <option value="运输时长过长">运输时长过长</option>
+                    <option value="操作失误">操作失误</option>
+                    <option value="其他">其他</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="responsibilityLevelField">责任等级</label>
+                <select id="responsibilityLevelField" name="responsibilityLevel">
+                    <option value="">请选择责任等级</option>
+                    <option value="primary">主要责任</option>
+                    <option value="secondary">次要责任</option>
+                    <option value="none">无责任</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="confidence">置信度</label>
+                <input id="confidence" name="confidence" type="number" min="0" max="100" step="0.01">
+            </div>
+            <div class="field">
+                <label for="analystId">分析人</label>
+                <select id="analystId" name="analystId"></select>
+            </div>
+            <div class="field" style="grid-column: 1 / -1;">
+                <label for="analysisBasis">分析依据</label>
+                <textarea id="analysisBasis" name="analysisBasis" placeholder="输入分析依据"></textarea>
+            </div>
+            <div class="field" style="grid-column: 1 / -1;">
+                <label for="suggestion">建议</label>
+                <textarea id="suggestion" name="suggestion" placeholder="输入整改建议"></textarea>
+            </div>
+        </form>
+        <div class="dialog-actions">
+            <button class="btn btn-secondary" type="button" data-close="editDialog">取消</button>
+            <button class="btn btn-primary" type="button" id="saveBtn">保存</button>
         </div>
     </div>
+</dialog>
 
-    <script>
-        const API_BASE = '/api';
-        axios.defaults.baseURL = API_BASE;
+<dialog id="detailDialog">
+    <div class="dialog-body">
+        <div class="dialog-header">
+            <h3>归因详情</h3>
+            <button class="btn btn-ghost btn-sm" type="button" data-close="detailDialog">关闭</button>
+        </div>
+        <div class="detail-grid" id="detailInfo"></div>
+    </div>
+</dialog>
 
-        let currentPage = 1;
-        let pageSize = 10;
-        let total = 0;
+<script src="/assets/common.js"></script>
+<script>
+    const state = { pageNum: 1, pageSize: 10 };
+    let lossRecords = [];
 
-        function updateTime() {
-            const now = new Date();
-            document.getElementById('currentTime').textContent = now.toLocaleString('zh-CN');
+    function statusBadge(status) {
+        const map = {
+            confirmed: '<span class="badge badge-success">已确认</span>',
+            appealed: '<span class="badge badge-warning">已申诉</span>',
+            revised: '<span class="badge badge-primary">已修订</span>',
+        };
+        return map[status] || Common.escapeHtml(status || "-");
+    }
+
+    function levelBadge(level) {
+        const map = {
+            primary: '<span class="badge badge-danger">主要责任</span>',
+            secondary: '<span class="badge badge-warning">次要责任</span>',
+            none: '<span class="badge badge-success">无责任</span>',
+        };
+        return map[level] || Common.escapeHtml(level || "-");
+    }
+
+    function collectSearch() {
+        const form = document.getElementById("searchForm");
+        return {
+            pageNum: state.pageNum,
+            pageSize: state.pageSize,
+            batchNo: form.batchNo.value,
+            responsibilityType: form.responsibilityType.value,
+            responsibilityLevel: form.responsibilityLevel.value,
+            status: form.status.value,
+        };
+    }
+
+    async function loadLosses() {
+        lossRecords = await Common.get("/loss/list");
+        Common.renderOptions(
+            document.getElementById("lossId"),
+            lossRecords,
+            (item) => `<option value="${item.id}">${Common.escapeHtml(item.batchNo)} - ${Common.formatNumber(item.lossQuantity)}kg - ${Common.escapeHtml(item.lossType)}</option>`,
+            "请选择损耗记录"
+        );
+        const params = new URLSearchParams(window.location.search);
+        const lossId = params.get("lossId");
+        if (lossId) {
+            document.getElementById("lossId").value = lossId;
+            Common.openDialog("editDialog");
         }
-        setInterval(updateTime, 1000);
-        updateTime();
+    }
 
-        function getResponsibilityTypeText(type) {
-            const map = {
-                '温度控制不当': '温度控制不当',
-                '操作失误': '操作失误',
-                '设备故障': '设备故障',
-                '延迟': '延迟',
-                '其他': '其他'
-            };
-            return map[type] || type;
+    async function loadUsers() {
+        const users = await Common.loadUsers();
+        Common.renderOptions(
+            document.getElementById("analystId"),
+            users,
+            (item) => `<option value="${item.id}">${Common.escapeHtml(item.realName)} (${Common.escapeHtml(item.username)})</option>`,
+            "请选择分析人"
+        );
+    }
+
+    async function loadTable() {
+        const page = await Common.get("/attribution/page", collectSearch());
+        const tbody = document.getElementById("tableBody");
+        const records = page.records || [];
+        if (!records.length) {
+            tbody.innerHTML = '<tr><td colspan="9" class="empty">暂无数据</td></tr>';
+        } else {
+            tbody.innerHTML = records.map((item) => `
+                <tr>
+                    <td><span class="badge badge-primary">${Common.escapeHtml(item.batchNo)}</span></td>
+                    <td class="danger">${Common.formatNumber(item.lossQuantity)} kg</td>
+                    <td>${Common.escapeHtml(item.responsibleParty || "-")}</td>
+                    <td>${Common.escapeHtml(item.responsibilityType || "-")}</td>
+                    <td>${levelBadge(item.responsibilityLevel)}</td>
+                    <td>${Common.formatNumber(item.confidence)}%</td>
+                    <td>${Common.formatDateTime(item.analysisTime)}</td>
+                    <td>${statusBadge(item.status)}</td>
+                    <td>
+                        <div class="table-actions">
+                            <button class="btn btn-secondary btn-sm" type="button" onclick="viewDetail(${item.id})">详情</button>
+                            <button class="btn btn-danger btn-sm" type="button" onclick="deleteAttribution(${item.id})">删除</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join("");
         }
-
-        function getResponsibilityLevelText(level) {
-            const map = {
-                'primary': '<span class="badge badge-danger">主要责任</span>',
-                'secondary': '<span class="badge badge-warning">次要责任</span>',
-                'none': '<span class="badge badge-success">无责任</span>'
-            };
-            return map[level] || level;
-        }
-
-        function getStatusText(status) {
-            const map = {
-                'confirmed': '<span class="badge badge-success">已确认</span>',
-                'appealed': '<span class="badge badge-warning">已申诉</span>',
-                'revised': '<span class="badge badge-info">已修正</span>'
-            };
-            return map[status] || status;
-        }
-
-        async function loadLossList() {
-            try {
-                const res = await axios.get('/loss/list');
-                const data = res.data.data || [];
-                const options = data.map(l => `<option value="${l.id}">${l.batchNo} - ${l.lossQuantity}kg - ${getLossTypeText(l.lossType)}</option>`).join('');
-                document.getElementById('addLossId').innerHTML = '<option value="">请选择损耗记录</option>' + options;
-
-                const urlParams = new URLSearchParams(window.location.search);
-                const lossId = urlParams.get('lossId');
-                if (lossId) {
-                    document.getElementById('addLossId').value = lossId;
-                    new bootstrap.Modal(document.getElementById('addModal')).show();
-                }
-            } catch (e) {
-                console.error('加载损耗记录失败', e);
-                alert('加载损耗记录失败：' + (e.response?.data?.message || e.message));
-            }
-        }
-
-        function getLossTypeText(type) {
-            const map = {
-                '变质': '变质',
-                '损坏': '损坏',
-                '丢失': '丢失',
-                '其他': '其他'
-            };
-            return map[type] || type;
-        }
-
-        async function loadAttributionList() {
-            try {
-                const params = {
-                    pageNum: currentPage,
-                    pageSize: pageSize,
-                    batchNo: document.getElementById('batchNo').value,
-                    responsibilityType: document.getElementById('responsibilityType').value,
-                    responsibilityLevel: document.getElementById('responsibilityLevel').value,
-                    status: document.getElementById('status').value
-                };
-                const res = await axios.get('/attribution/page', { params });
-                const data = res.data.data;
-                total = data.total;
-                const records = data.records;
-                const tbody = document.getElementById('attributionTable');
-                tbody.innerHTML = records.map(item => `
-                    <tr>
-                        <td><span class="badge badge-info">${item.batchNo}</span></td>
-                        <td class="text-danger">${item.lossQuantity} kg</td>
-                        <td>${item.responsibleParty}</td>
-                        <td>${getResponsibilityTypeText(item.responsibilityType)}</td>
-                        <td>${getResponsibilityLevelText(item.responsibilityLevel)}</td>
-                        <td>
-                            <div class="d-flex align-items-center gap-2">
-                                <div class="confidence-bar" style="width: 80px;">
-                                    <div class="confidence-bar-fill" style="width: ${item.confidence}%"></div>
-                                </div>
-                                <span>${item.confidence}%</span>
-                            </div>
-                        </td>
-                        <td>${item.analysisTime}</td>
-                        <td>${getStatusText(item.status)}</td>
-                        <td>
-                            <button class="btn btn-sm btn-info" onclick="viewDetail(${item.id})">
-                                <i class="bi bi-eye"></i> 详情
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteAttribution(${item.id})">
-                                <i class="bi bi-trash"></i> 删除
-                            </button>
-                        </td>
-                    </tr>
-                `).join('');
-                renderPagination();
-            } catch (e) {
-                console.error('加载归因记录失败', e);
-                alert('加载归因记录失败：' + (e.response?.data?.message || e.message));
-            }
-        }
-
-        function renderPagination() {
-            const totalPages = Math.ceil(total / pageSize);
-            const pagination = document.getElementById('pagination');
-            let html = '';
-            html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="javascript:goPage(${currentPage - 1})">上一页</a></li>`;
-            for (let i = 1; i <= totalPages; i++) {
-                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
-                    html += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="javascript:goPage(${i})">${i}</a></li>`;
-                } else if (i === currentPage - 3 || i === currentPage + 3) {
-                    html += '<li class="page-item disabled"><span class="page-link">...</span></li>';
-                }
-            }
-            html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="javascript:goPage(${currentPage + 1})">下一页</a></li>`;
-            pagination.innerHTML = html;
-        }
-
-        function goPage(page) {
-            if (page < 1) return;
-            currentPage = page;
-            loadAttributionList();
-        }
-
-        function resetForm() {
-            document.getElementById('searchForm').reset();
-            currentPage = 1;
-            loadAttributionList();
-        }
-
-        async function autoAnalyze() {
-            const lossId = document.getElementById('addLossId').value;
-            if (!lossId) {
-                alert('请先选择损耗记录');
-                return;
-            }
-            try {
-                const btn = event.target;
-                btn.disabled = true;
-                btn.innerHTML = '<i class="bi bi-hourglass-split"></i> 分析中...';
-                const res = await axios.get(`/attribution/analyze/${lossId}`);
-                const data = res.data.data;
-                document.getElementById('addResponsibleParty').value = data.responsibleParty || '';
-                document.getElementById('addResponsibilityType').value = data.responsibilityType || '';
-                document.getElementById('addResponsibilityLevel').value = data.responsibilityLevel || '';
-                document.getElementById('addConfidence').value = data.confidence || '';
-                document.getElementById('addAnalysisBasis').value = data.analysisBasis || '';
-                document.getElementById('addSuggestion').value = data.suggestion || data.improvementSuggestion || '';
-                alert('自动分析完成');
-            } catch (e) {
-                console.error('自动分析失败', e);
-                alert('自动分析失败：' + (e.response?.data?.message || e.message));
-            } finally {
-                const btn = event.target;
-                btn.disabled = false;
-                btn.innerHTML = '<i class="bi bi-magic"></i> 自动分析';
-            }
-        }
-
-        async function submitAdd() {
-            const form = document.getElementById('addForm');
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
-            try {
-                const lossId = document.getElementById('addLossId').value;
-                const lossRes = await axios.get('/loss/detail?id=' + lossId);
-                const lossData = lossRes.data.data;
-                
-                const data = {
-                    lossId: lossId,
-                    batchId: lossData.batchId,
-                    nodeId: lossData.nodeId,
-                    responsibleParty: document.getElementById('addResponsibleParty').value,
-                    responsibilityType: document.getElementById('addResponsibilityType').value,
-                    responsibilityLevel: document.getElementById('addResponsibilityLevel').value,
-                    confidence: document.getElementById('addConfidence').value,
-                    analysisBasis: document.getElementById('addAnalysisBasis').value,
-                    suggestion: document.getElementById('addSuggestion').value,
-                    analystId: 1
-                };
-                await axios.post('/attribution/add', data);
-                alert('新增成功');
-                bootstrap.Modal.getInstance(document.getElementById('addModal')).hide();
-                form.reset();
-                loadAttributionList();
-            } catch (e) {
-                console.error('新增归因失败', e);
-                alert('新增失败：' + (e.response?.data?.message || e.message));
-            }
-        }
-
-        async function viewDetail(id) {
-            try {
-                const res = await axios.get('/attribution/detail?id=' + id);
-                const data = res.data.data;
-                alert(`归因详情：\n批次号：${data.batchNo}\n责任方：${data.responsibleParty}\n责任类型：${getResponsibilityTypeText(data.responsibilityType)}\n责任等级：${data.responsibilityLevel}\n置信度：${data.confidence}%\n分析依据：${data.analysisBasis}\n建议：${data.suggestion || data.improvementSuggestion || '-'}`);
-            } catch (e) {
-                console.error('加载详情失败', e);
-                alert('加载详情失败：' + (e.response?.data?.message || e.message));
-            }
-        }
-
-        async function deleteAttribution(id) {
-            if (!confirm('确定要删除该归因记录吗？')) return;
-            try {
-                await axios.delete('/attribution/delete?id=' + id);
-                alert('删除成功');
-                loadAttributionList();
-            } catch (e) {
-                console.error('删除失败', e);
-                alert('删除失败：' + (e.response?.data?.message || e.message));
-            }
-        }
-
-        document.getElementById('searchForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            currentPage = 1;
-            loadAttributionList();
+        Common.renderPager(document.getElementById("pagination"), page, (pageNum) => {
+            state.pageNum = pageNum;
+            loadTable().catch(showError);
         });
+    }
 
-        (async function init() {
-            await loadLossList();
-            await loadAttributionList();
-        })();
-    </script>
+    async function autoAnalyze() {
+        const lossId = Common.must(document.getElementById("lossId").value, "请先选择损耗记录");
+        const data = await Common.get(`/attribution/analyze/${lossId}`);
+        document.getElementById("responsibleParty").value = data.responsibleParty || "";
+        document.getElementById("responsibilityTypeField").value = data.responsibilityType || "";
+        document.getElementById("responsibilityLevelField").value = data.responsibilityLevel || "";
+        document.getElementById("confidence").value = data.confidence || "";
+        document.getElementById("analysisBasis").value = data.analysisBasis || "";
+        document.getElementById("suggestion").value = data.suggestion || "";
+        alert("自动分析完成");
+    }
+
+    async function saveAttribution() {
+        const form = document.getElementById("editForm");
+        const lossId = Number(Common.must(form.lossId.value, "请选择损耗记录"));
+        const loss = lossRecords.find((item) => Number(item.id) === lossId);
+        if (!loss) {
+            throw new Error("未找到损耗记录");
+        }
+        await Common.post("/attribution/add", {
+            lossId,
+            batchId: Number(loss.batchId),
+            nodeId: Number(loss.nodeId),
+            responsibleParty: Common.must(form.responsibleParty.value.trim(), "请输入责任方"),
+            responsibilityType: Common.must(form.responsibilityType.value, "请选择责任类型"),
+            responsibilityLevel: Common.must(form.responsibilityLevel.value, "请选择责任等级"),
+            confidence: Number(Common.must(form.confidence.value, "请输入置信度")),
+            analysisBasis: form.analysisBasis.value.trim(),
+            suggestion: form.suggestion.value.trim(),
+            analystId: Number(Common.must(form.analystId.value, "请选择分析人")),
+        });
+        form.reset();
+        Common.closeDialog("editDialog");
+        state.pageNum = 1;
+        await loadLosses();
+        await loadTable();
+        alert("新增归因成功");
+    }
+
+    async function viewDetail(id) {
+        const data = await Common.get("/attribution/detail", { id });
+        document.getElementById("detailInfo").innerHTML = [
+            ["批次号", data.batchNo],
+            ["责任方", data.responsibleParty],
+            ["责任类型", data.responsibilityType],
+            ["责任等级", levelBadge(data.responsibilityLevel)],
+            ["置信度", `${Common.formatNumber(data.confidence)}%`],
+            ["分析人", data.analystName || "-"],
+            ["损耗量", `${Common.formatNumber(data.lossQuantity)} kg`],
+            ["分析时间", Common.formatDateTime(data.analysisTime)],
+            ["状态", statusBadge(data.status)],
+            ["分析依据", data.analysisBasis || "-"],
+            ["建议", data.suggestion || data.improvementSuggestion || "-"],
+        ].map(([label, value]) => `
+            <div class="detail-item">
+                <strong>${label}</strong>
+                <div>${value}</div>
+            </div>
+        `).join("");
+        Common.openDialog("detailDialog");
+    }
+
+    async function deleteAttribution(id) {
+        if (!confirm("确认删除这条归因记录？")) {
+            return;
+        }
+        await Common.del("/attribution/delete", { id });
+        await loadTable();
+        alert("删除成功");
+    }
+
+    function showError(error) {
+        alert(error.message || "操作失败");
+    }
+
+    document.getElementById("searchForm").addEventListener("submit", (event) => {
+        event.preventDefault();
+        state.pageNum = 1;
+        loadTable().catch(showError);
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+        document.getElementById("searchForm").reset();
+        state.pageNum = 1;
+        loadTable().catch(showError);
+    });
+
+    document.getElementById("openAddBtn").addEventListener("click", () => {
+        document.getElementById("editForm").reset();
+        Common.openDialog("editDialog");
+    });
+
+    document.getElementById("analyzeBtn").addEventListener("click", () => {
+        autoAnalyze().catch(showError);
+    });
+
+    document.getElementById("saveBtn").addEventListener("click", () => {
+        saveAttribution().catch(showError);
+    });
+
+    document.querySelectorAll("[data-close]").forEach((button) => {
+        button.addEventListener("click", () => Common.closeDialog(button.dataset.close));
+    });
+
+    Common.setClock();
+    Promise.all([loadLosses(), loadUsers()]).then(loadTable).catch(showError);
+</script>
 </body>
 </html>

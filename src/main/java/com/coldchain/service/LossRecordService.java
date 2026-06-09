@@ -26,5 +26,5 @@ public interface LossRecordService {
 
     PageResult<Map<String, Object>> getLossRecordPage(PageQueryDTO dto);
 
-    List<Map<String, Object>> getLossList();
+    List<Map<String, Object>> getLossList(Long batchId);
 }

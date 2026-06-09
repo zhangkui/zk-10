@@ -3,514 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>可视化追溯 - 农产品冷链损耗归因分析系统</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; }
-        .sidebar {
-            width: 220px;
-            height: 100vh;
-            background: linear-gradient(180deg, #001529 0%, #002140 100%);
-            position: fixed;
-            left: 0;
-            top: 0;
-            color: #fff;
-            padding-top: 20px;
-        }
-        .sidebar .logo {
-            text-align: center;
-            padding: 20px 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            margin-bottom: 20px;
-        }
-        .sidebar .logo h4 { font-size: 16px; font-weight: bold; margin: 0; }
-        .sidebar .logo p { font-size: 12px; opacity: 0.7; margin: 5px 0 0; }
-        .sidebar .menu { list-style: none; }
-        .sidebar .menu li { padding: 0; }
-        .sidebar .menu li a {
-            display: block;
-            padding: 14px 25px;
-            color: rgba(255,255,255,0.75);
-            text-decoration: none;
-            transition: all 0.3s;
-            border-left: 3px solid transparent;
-        }
-        .sidebar .menu li a:hover,
-        .sidebar .menu li a.active {
-            background: rgba(24, 144, 255, 0.2);
-            color: #fff;
-            border-left-color: #1890ff;
-        }
-        .sidebar .menu li a i { margin-right: 10px; }
-        .main-content {
-            margin-left: 220px;
-            padding: 20px;
-        }
-        .header {
-            background: #fff;
-            padding: 15px 25px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }
-        .header h3 { margin: 0; color: #333; }
-        .info-cards {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        .info-card {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }
-        .info-card .label {
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 8px;
-        }
-        .info-card .value {
-            font-size: 20px;
-            font-weight: bold;
-            color: #333;
-        }
-        .info-card.danger .value {
-            color: #f5222d;
-        }
-        .chart-box {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }
-        .chart-box h5 {
-            margin: 0 0 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-            color: #333;
-        }
-        #traceChart {
-            width: 100%;
-            height: 500px;
-        }
-        .timeline {
-            position: relative;
-            padding-left: 30px;
-        }
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 8px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: #e8e8e8;
-        }
-        .timeline-item {
-            position: relative;
-            padding-bottom: 20px;
-        }
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -26px;
-            top: 8px;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: #1890ff;
-            border: 3px solid #fff;
-            box-shadow: 0 0 0 2px #1890ff;
-        }
-        .timeline-item.loss::before {
-            background: #f5222d;
-            box-shadow: 0 0 0 2px #f5222d;
-        }
-        .timeline-item .time {
-            font-size: 12px;
-            color: #999;
-            margin-bottom: 5px;
-        }
-        .timeline-item .content {
-            background: #f9f9f9;
-            padding: 12px 15px;
-            border-radius: 6px;
-        }
-        .timeline-item .content h6 {
-            margin: 0 0 8px;
-            font-size: 14px;
-            font-weight: bold;
-            color: #333;
-        }
-        .timeline-item .content p {
-            margin: 3px 0;
-            font-size: 13px;
-            color: #666;
-        }
-        .timeline-item .content .attr-info {
-            background: #fff1f0;
-            padding: 8px 12px;
-            border-radius: 4px;
-            margin-top: 8px;
-            border-left: 3px solid #f5222d;
-        }
-        .badge {
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: normal;
-        }
-        .badge-success { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
-        .badge-warning { background: #fffbe6; color: #faad14; border: 1px solid #ffe58f; }
-        .badge-danger { background: #fff1f0; color: #f5222d; border: 1px solid #ffa39e; }
-        .badge-info { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
-    </style>
+    <title>追溯链路</title>
+    <link rel="stylesheet" href="/assets/common.css">
 </head>
 <body>
-    <div class="sidebar">
-        <div class="logo">
-            <h4><i class="bi bi-snow2"></i> 冷链损耗分析</h4>
-            <p>Cold Chain Loss Analysis</p>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="brand">
+            <h1>冷链损耗分析</h1>
+            <p>农产品冷链损耗归因分析系统</p>
         </div>
-        <ul class="menu">
-            <li><a href="index.html"><i class="bi bi-speedometer2"></i> 数据概览</a></li>
-            <li><a href="batch.html"><i class="bi bi-box-seam"></i> 批次管理</a></li>
-            <li><a href="flow.html"><i class="bi bi-arrow-left-right"></i> 流转记录</a></li>
-            <li><a href="loss.html"><i class="bi bi-exclamation-triangle"></i> 损耗记录</a></li>
-            <li><a href="attribution.html"><i class="bi bi-search"></i> 归因分析</a></li>
-            <li><a href="trace.html" class="active"><i class="bi bi-diagram-3"></i> 可视化追溯</a></li>
-            <li><a href="node.html"><i class="bi bi-geo-alt"></i> 节点管理</a></li>
-            <li><a href="product.html"><i class="bi bi-bag"></i> 产品管理</a></li>
-        </ul>
-    </div>
+        <nav class="nav">
+            <a href="/index.html">数据概览</a>
+            <a href="/batch.html">批次管理</a>
+            <a href="/flow.html">流转记录</a>
+            <a href="/loss.html">损耗记录</a>
+            <a href="/attribution.html">归因分析</a>
+            <a href="/trace.html" class="active">追溯链路</a>
+            <a href="/node.html">节点管理</a>
+            <a href="/product.html">产品管理</a>
+        </nav>
+    </aside>
 
-    <div class="main-content">
-        <div class="header">
-            <h3><i class="bi bi-diagram-3"></i> 可视化追溯</h3>
+    <main class="main">
+        <section class="topbar">
             <div>
-                <span class="text-muted">当前用户：管理员</span>
-                <span class="text-muted ms-3" id="currentTime"></span>
+                <h2>追溯链路</h2>
+                <div class="meta">查看批次基础信息、流转、损耗和归因时间线</div>
             </div>
-        </div>
+            <div class="meta" id="currentTime"></div>
+        </section>
 
-        <div class="chart-box">
-            <div class="row align-items-center mb-3">
-                <div class="col-md-4">
-                    <label class="form-label fw-bold">选择批次</label>
-                    <select class="form-select" id="batchSelect" onchange="loadTraceData()">
-                        <option value="">请选择批次</option>
-                    </select>
+        <section class="panel">
+            <div class="form-grid">
+                <div class="field">
+                    <label for="batchId">选择批次</label>
+                    <select id="batchId"></select>
                 </div>
-            </div>
-        </div>
-
-        <div id="infoSection" style="display: none;">
-            <div class="info-cards">
-                <div class="info-card">
-                    <div class="label"><i class="bi bi-tag"></i> 批次号</div>
-                    <div class="value" id="infoBatchNo">-</div>
-                </div>
-                <div class="info-card">
-                    <div class="label"><i class="bi bi-bag"></i> 产品</div>
-                    <div class="value" id="infoProduct">-</div>
-                </div>
-                <div class="info-card">
-                    <div class="label"><i class="bi bi-box-seam"></i> 初始数量</div>
-                    <div class="value" id="infoQuantity">-</div>
-                </div>
-                <div class="info-card">
-                    <div class="label"><i class="bi bi-activity"></i> 当前状态</div>
-                    <div class="value" id="infoStatus">-</div>
-                </div>
-                <div class="info-card danger">
-                    <div class="label"><i class="bi bi-droplet-half"></i> 总损耗率</div>
-                    <div class="value" id="infoLossRate">-</div>
+                <div class="actions">
+                    <button class="btn btn-primary" type="button" id="loadBtn">查看追溯</button>
                 </div>
             </div>
+        </section>
 
-            <div class="row">
-                <div class="col-md-7">
-                    <div class="chart-box">
-                        <h5><i class="bi bi-diagram-3"></i> 流转链路图</h5>
-                        <div id="traceChart"></div>
-                    </div>
-                </div>
-                <div class="col-md-5">
-                    <div class="chart-box">
-                        <h5><i class="bi bi-clock-history"></i> 流转时间线</h5>
-                        <div class="timeline" id="timeline">
-                        </div>
-                    </div>
-                </div>
+        <section class="cards" id="summaryCards" style="display: none;">
+            <div class="card">
+                <div class="label">批次号</div>
+                <div class="value" id="summaryBatchNo">-</div>
             </div>
-        </div>
+            <div class="card">
+                <div class="label">产品名称</div>
+                <div class="value" id="summaryProduct">-</div>
+            </div>
+            <div class="card">
+                <div class="label">批次数量</div>
+                <div class="value" id="summaryQuantity">-</div>
+            </div>
+            <div class="card">
+                <div class="label">损耗率</div>
+                <div class="value" id="summaryLossRate">-</div>
+            </div>
+        </section>
 
-        <div id="emptyTip" class="chart-box text-center py-5">
-            <i class="bi bi-diagram-3 text-muted" style="font-size: 64px;"></i>
-            <p class="text-muted mt-3">请选择批次查看追溯信息</p>
-        </div>
-    </div>
+        <section class="grid-2" id="traceContent" style="display: none; margin-top: 20px;">
+            <div class="panel">
+                <div class="panel-header">
+                    <h3>流转链路</h3>
+                </div>
+                <div class="list" id="flowList"></div>
+            </div>
+            <div class="panel">
+                <div class="panel-header">
+                    <h3>事件时间线</h3>
+                </div>
+                <div class="timeline" id="timeline"></div>
+            </div>
+        </section>
 
-    <script>
-        const API_BASE = '/api';
-        axios.defaults.baseURL = API_BASE;
+        <section class="panel" id="emptyPanel">
+            <div class="empty">请选择批次查看追溯链路</div>
+        </section>
+    </main>
+</div>
 
-        let traceChart = null;
-
-        function updateTime() {
-            const now = new Date();
-            document.getElementById('currentTime').textContent = now.toLocaleString('zh-CN');
+<script src="/assets/common.js"></script>
+<script>
+    async function loadBatches() {
+        const batches = await Common.get("/batch/list");
+        Common.renderOptions(
+            document.getElementById("batchId"),
+            batches,
+            (item) => `<option value="${item.id}">${Common.escapeHtml(item.batchNo)} - ${Common.escapeHtml(item.productName)}</option>`,
+            "请选择批次"
+        );
+        const params = new URLSearchParams(window.location.search);
+        const batchId = params.get("batchId");
+        if (batchId) {
+            document.getElementById("batchId").value = batchId;
+            await loadTrace();
         }
-        setInterval(updateTime, 1000);
-        updateTime();
+    }
 
-        function getStatusText(status) {
-            const map = {
-                'in_transit': '<span class="badge badge-info">运输中</span>',
-                'in_storage': '<span class="badge badge-success">仓储中</span>',
-                'completed': '<span class="badge badge-success">已完成</span>',
-                'expired': '<span class="badge badge-danger">已过期</span>'
-            };
-            return map[status] || status;
+    function renderSummary(batch) {
+        document.getElementById("summaryBatchNo").textContent = batch.batchNo || "-";
+        document.getElementById("summaryProduct").textContent = batch.productName || "-";
+        document.getElementById("summaryQuantity").textContent = `${Common.formatNumber(batch.quantity)} kg`;
+        document.getElementById("summaryLossRate").textContent = `${Common.formatNumber(batch.lossRate)}%`;
+    }
+
+    function renderFlows(flows) {
+        const target = document.getElementById("flowList");
+        if (!flows.length) {
+            target.innerHTML = '<div class="empty">暂无流转记录</div>';
+            return;
         }
+        target.innerHTML = flows.map((item) => `
+            <div class="list-item">
+                <div class="stat-row">
+                    <strong>${Common.escapeHtml(item.sourceNodeName || "起点")} -> ${Common.escapeHtml(item.targetNodeName || "终点")}</strong>
+                    <span class="badge badge-primary">${Common.formatNumber(item.flowQuantity ?? item.quantity)} kg</span>
+                </div>
+                <div class="muted">时间：${Common.formatDateTime(item.operateTime)}，温度：${item.transportTemperature === null || item.transportTemperature === undefined ? "-" : `${Common.formatNumber(item.transportTemperature)}℃`}</div>
+            </div>
+        `).join("");
+    }
 
-        async function loadBatches() {
-            try {
-                const res = await axios.get('/batch/list');
-                const data = res.data.data;
-                const options = data.map(b => `<option value="${b.id}">${b.batchNo} - ${b.productName}</option>`).join('');
-                document.getElementById('batchSelect').innerHTML = '<option value="">请选择批次</option>' + options;
+    function renderTimeline(batch, flows, losses, attributions) {
+        const target = document.getElementById("timeline");
+        const items = [];
+        items.push(`
+            <div class="timeline-item">
+                <strong>批次创建</strong>
+                <div class="muted">${Common.formatDateTime(batch.createTime)}</div>
+                <div>产品：${Common.escapeHtml(batch.productName || "-")}，数量：${Common.formatNumber(batch.quantity)} kg</div>
+            </div>
+        `);
 
-                const urlParams = new URLSearchParams(window.location.search);
-                const batchId = urlParams.get('batchId');
-                if (batchId) {
-                    document.getElementById('batchSelect').value = batchId;
-                    loadTraceData();
-                }
-            } catch (e) {
-                console.error('加载批次列表失败', e);
-                alert('加载批次列表失败：' + (e.response?.data?.message || e.message));
-            }
-        }
-
-        async function loadTraceData() {
-            const batchId = document.getElementById('batchSelect').value;
-            if (!batchId) {
-                document.getElementById('infoSection').style.display = 'none';
-                document.getElementById('emptyTip').style.display = 'block';
-                return;
-            }
-
-            try {
-                const res = await axios.get('/batch/' + batchId + '/trace');
-                const data = res.data.data;
-
-                document.getElementById('infoSection').style.display = 'block';
-                document.getElementById('emptyTip').style.display = 'none';
-
-                document.getElementById('infoBatchNo').textContent = data.batch.batchNo;
-                document.getElementById('infoProduct').textContent = data.batch.productName;
-                document.getElementById('infoQuantity').textContent = data.batch.quantity + ' kg';
-                document.getElementById('infoStatus').innerHTML = getStatusText(data.batch.status);
-                document.getElementById('infoLossRate').textContent = (data.batch.lossRate || 0) + '%';
-
-                renderTraceChart(data);
-                renderTimeline(data);
-            } catch (e) {
-                console.error('加载追溯数据失败', e);
-                alert('加载追溯数据失败：' + (e.response?.data?.message || e.message));
-            }
-        }
-
-        function renderTraceChart(data) {
-            const nodes = [];
-            const links = [];
-            const nodeSet = new Set();
-
-            if (data.flows && data.flows.length > 0) {
-                data.flows.forEach((flow, index) => {
-                    if (!nodeSet.has(flow.sourceNodeId)) {
-                        nodeSet.add(flow.sourceNodeId);
-                        const hasLoss = data.losses && data.losses.some(l => l.nodeId === flow.sourceNodeId);
-                        nodes.push({
-                            id: flow.sourceNodeId.toString(),
-                            name: flow.sourceNodeName,
-                            symbolSize: hasLoss ? 60 : 40,
-                            itemStyle: {
-                                color: hasLoss ? '#f5222d' : '#1890ff'
-                            },
-                            category: hasLoss ? 1 : 0
-                        });
-                    }
-                    if (!nodeSet.has(flow.targetNodeId)) {
-                        nodeSet.add(flow.targetNodeId);
-                        const hasLoss = data.losses && data.losses.some(l => l.nodeId === flow.targetNodeId);
-                        nodes.push({
-                            id: flow.targetNodeId.toString(),
-                            name: flow.targetNodeName,
-                            symbolSize: hasLoss ? 60 : 40,
-                            itemStyle: {
-                                color: hasLoss ? '#f5222d' : '#1890ff'
-                            },
-                            category: hasLoss ? 1 : 0
-                        });
-                    }
-                    links.push({
-                        source: flow.sourceNodeId.toString(),
-                        target: flow.targetNodeId.toString(),
-                        label: {
-                            show: true,
-                            formatter: flow.quantity + ' kg'
-                        },
-                        lineStyle: {
-                            width: 2,
-                            color: '#91d5ff'
-                        }
-                    });
-                });
-            } else {
-                nodes.push({
-                    id: '0',
-                    name: data.batch.productName,
-                    symbolSize: 40,
-                    itemStyle: { color: '#1890ff' },
-                    category: 0
-                });
-            }
-
-            if (!traceChart) {
-                traceChart = echarts.init(document.getElementById('traceChart'));
-            }
-
-            const option = {
-                tooltip: {
-                    formatter: function(params) {
-                        if (params.dataType === 'node') {
-                            let html = `<strong>${params.name}</strong>`;
-                            const nodeLosses = data.losses && data.losses.filter(l => l.nodeId == params.data.id);
-                            if (nodeLosses && nodeLosses.length > 0) {
-                                html += `<br/>损耗：${nodeLosses.reduce((sum, l) => sum + l.lossQuantity, 0)} kg`;
-                                nodeLosses.forEach(l => {
-                                    html += `<br/>- ${l.lossType}: ${l.lossQuantity}kg`;
-                                });
-                            }
-                            return html;
-                        }
-                        return params.data.label.formatter;
-                    }
-                },
-                legend: [{
-                    data: ['正常节点', '损耗节点'],
-                    bottom: 10
-                }],
-                series: [{
-                    type: 'graph',
-                    layout: 'force',
-                    roam: true,
-                    label: {
-                        show: true,
-                        position: 'bottom',
-                        fontSize: 12
-                    },
-                    force: {
-                        repulsion: 400,
-                        edgeLength: 120,
-                        gravity: 0.1
-                    },
-                    categories: [
-                        { name: '正常节点', itemStyle: { color: '#1890ff' } },
-                        { name: '损耗节点', itemStyle: { color: '#f5222d' } }
-                    ],
-                    data: nodes,
-                    links: links,
-                    lineStyle: {
-                        curveness: 0.1
-                    }
-                }]
-            };
-
-            traceChart.setOption(option, true);
-
-            window.addEventListener('resize', function() {
-                if (traceChart) traceChart.resize();
-            });
-        }
-
-        function renderTimeline(data) {
-            const timeline = document.getElementById('timeline');
-            let html = '';
-
-            html += `
+        flows.forEach((flow) => {
+            items.push(`
                 <div class="timeline-item">
-                    <div class="time">${data.batch.createTime}</div>
-                    <div class="content">
-                        <h6><i class="bi bi-box-seam"></i> 批次创建</h6>
-                        <p>产品：${data.batch.productName}</p>
-                        <p>数量：${data.batch.quantity} kg</p>
-                        <p>产地：${data.batch.origin || '-'}</p>
-                    </div>
+                    <strong>流转记录</strong>
+                    <div class="muted">${Common.formatDateTime(flow.operateTime)}</div>
+                    <div>${Common.escapeHtml(flow.sourceNodeName || "起点")} -> ${Common.escapeHtml(flow.targetNodeName || "终点")}，数量 ${Common.formatNumber(flow.flowQuantity ?? flow.quantity)} kg</div>
                 </div>
-            `;
+            `);
+        });
 
-            if (data.flows && data.flows.length > 0) {
-                data.flows.forEach(flow => {
-                    html += `
-                        <div class="timeline-item">
-                            <div class="time">${flow.operateTime}</div>
-                            <div class="content">
-                                <h6><i class="bi bi-arrow-left-right"></i> 流转记录</h6>
-                                <p><span class="badge badge-info">${flow.sourceNodeName}</span> <i class="bi bi-arrow-right"></i> <span class="badge badge-info">${flow.targetNodeName}</span></p>
-                                <p>流转数量：${flow.quantity} kg</p>
-                                <p>运输温度：${flow.transportTemperature}℃</p>
-                                <p>操作人：${flow.operatorName}</p>
-                            </div>
-                        </div>
-                    `;
+        losses.forEach((loss) => {
+            const attribution = attributions.find((item) => Number(item.lossId) === Number(loss.id));
+            items.push(`
+                <div class="timeline-item loss">
+                    <strong>损耗记录</strong>
+                    <div class="muted">${Common.formatDateTime(loss.discoverTime)}</div>
+                    <div>节点：${Common.escapeHtml(loss.nodeName || "-")}，损耗 ${Common.formatNumber(loss.lossQuantity)} kg，类型：${Common.escapeHtml(loss.lossType || "-")}</div>
+                    <div>原因：${Common.escapeHtml(loss.lossReason || "-")}</div>
+                    ${attribution ? `<div style="margin-top: 8px;">归因：${Common.escapeHtml(attribution.responsibleParty || "-")} / ${Common.escapeHtml(attribution.responsibilityType || "-")} / ${Common.formatNumber(attribution.confidence)}%</div>` : ""}
+                </div>
+            `);
+        });
 
-                    const nodeLosses = data.losses && data.losses.filter(l => l.nodeId === flow.targetNodeId && l.discoverTime >= flow.operateTime);
-                    if (nodeLosses && nodeLosses.length > 0) {
-                        nodeLosses.forEach(loss => {
-                            const attribution = data.attributions && data.attributions.find(a => a.lossId === loss.id);
-                            html += `
-                                <div class="timeline-item loss">
-                                    <div class="time">${loss.discoverTime}</div>
-                                    <div class="content">
-                                        <h6><i class="bi bi-exclamation-triangle text-danger"></i> 损耗记录 <span class="badge badge-danger">${loss.lossType}</span></h6>
-                                        <p>节点：${loss.nodeName}</p>
-                                        <p>损耗数量：<span class="text-danger fw-bold">${loss.lossQuantity} kg</span> (${loss.lossRate}%)</p>
-                                        <p>损耗原因：${loss.lossReason || '-'}</p>
-                                        ${attribution ? `
-                                            <div class="attr-info">
-                                                <h6 class="text-danger"><i class="bi bi-search"></i> 归因结果</h6>
-                                                <p>责任方：${attribution.responsibleParty}</p>
-                                                <p>责任类型：${attribution.responsibilityType}</p>
-                                                <p>置信度：${attribution.confidence}%</p>
-                                            </div>
-                                        ` : ''}
-                                    </div>
-                                </div>
-                            `;
-                        });
-                    }
-                });
-            }
+        target.innerHTML = items.join("");
+    }
 
-            timeline.innerHTML = html || '<div class="text-center text-muted py-4">暂无流转记录</div>';
+    async function loadTrace() {
+        const batchId = document.getElementById("batchId").value;
+        if (!batchId) {
+            return;
         }
+        const data = await Common.get(`/batch/${batchId}/trace`);
+        renderSummary(data.batch || {});
+        renderFlows(data.flows || []);
+        renderTimeline(data.batch || {}, data.flows || [], data.losses || [], data.attributions || []);
+        document.getElementById("summaryCards").style.display = "grid";
+        document.getElementById("traceContent").style.display = "grid";
+        document.getElementById("emptyPanel").style.display = "none";
+    }
 
-        (async function init() {
-            await loadBatches();
-        })();
-    </script>
+    function showError(error) {
+        alert(error.message || "加载失败");
+    }
+
+    document.getElementById("loadBtn").addEventListener("click", () => {
+        loadTrace().catch(showError);
+    });
+
+    Common.setClock();
+    loadBatches().catch(showError);
+</script>
 </body>
 </html>

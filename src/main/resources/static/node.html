@@ -3,165 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>节点管理 - 农产品冷链损耗归因分析系统</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; }
-        .sidebar {
-            width: 220px;
-            height: 100vh;
-            background: linear-gradient(180deg, #001529 0%, #002140 100%);
-            position: fixed;
-            left: 0;
-            top: 0;
-            color: #fff;
-            padding-top: 20px;
-        }
-        .sidebar .logo {
-            text-align: center;
-            padding: 20px 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            margin-bottom: 20px;
-        }
-        .sidebar .logo h4 { font-size: 16px; font-weight: bold; margin: 0; }
-        .sidebar .logo p { font-size: 12px; opacity: 0.7; margin: 5px 0 0; }
-        .sidebar .menu { list-style: none; }
-        .sidebar .menu li { padding: 0; }
-        .sidebar .menu li a {
-            display: block;
-            padding: 14px 25px;
-            color: rgba(255,255,255,0.75);
-            text-decoration: none;
-            transition: all 0.3s;
-            border-left: 3px solid transparent;
-        }
-        .sidebar .menu li a:hover,
-        .sidebar .menu li a.active {
-            background: rgba(24, 144, 255, 0.2);
-            color: #fff;
-            border-left-color: #1890ff;
-        }
-        .sidebar .menu li a i { margin-right: 10px; }
-        .main-content {
-            margin-left: 220px;
-            padding: 20px;
-        }
-        .header {
-            background: #fff;
-            padding: 15px 25px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }
-        .header h3 { margin: 0; color: #333; }
-        .search-box {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }
-        .table-box {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }
-        .badge {
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: normal;
-        }
-        .badge-success { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
-        .badge-warning { background: #fffbe6; color: #faad14; border: 1px solid #ffe58f; }
-        .badge-danger { background: #fff1f0; color: #f5222d; border: 1px solid #ffa39e; }
-        .badge-info { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
-        .temp-normal { color: #52c41a; }
-        .temp-warning { color: #faad14; }
-        .temp-danger { color: #f5222d; }
-    </style>
+    <title>节点管理</title>
+    <link rel="stylesheet" href="/assets/common.css">
 </head>
 <body>
-    <div class="sidebar">
-        <div class="logo">
-            <h4><i class="bi bi-snow2"></i> 冷链损耗分析</h4>
-            <p>Cold Chain Loss Analysis</p>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="brand">
+            <h1>冷链损耗分析</h1>
+            <p>农产品冷链损耗归因分析系统</p>
         </div>
-        <ul class="menu">
-            <li><a href="index.html"><i class="bi bi-speedometer2"></i> 数据概览</a></li>
-            <li><a href="batch.html"><i class="bi bi-box-seam"></i> 批次管理</a></li>
-            <li><a href="flow.html"><i class="bi bi-arrow-left-right"></i> 流转记录</a></li>
-            <li><a href="loss.html"><i class="bi bi-exclamation-triangle"></i> 损耗记录</a></li>
-            <li><a href="attribution.html"><i class="bi bi-search"></i> 归因分析</a></li>
-            <li><a href="trace.html"><i class="bi bi-diagram-3"></i> 可视化追溯</a></li>
-            <li><a href="node.html" class="active"><i class="bi bi-geo-alt"></i> 节点管理</a></li>
-            <li><a href="product.html"><i class="bi bi-bag"></i> 产品管理</a></li>
-        </ul>
-    </div>
+        <nav class="nav">
+            <a href="/index.html">数据概览</a>
+            <a href="/batch.html">批次管理</a>
+            <a href="/flow.html">流转记录</a>
+            <a href="/loss.html">损耗记录</a>
+            <a href="/attribution.html">归因分析</a>
+            <a href="/trace.html">追溯链路</a>
+            <a href="/node.html" class="active">节点管理</a>
+            <a href="/product.html">产品管理</a>
+        </nav>
+    </aside>
 
-    <div class="main-content">
-        <div class="header">
-            <h3><i class="bi bi-geo-alt"></i> 节点管理</h3>
+    <main class="main">
+        <section class="topbar">
             <div>
-                <span class="text-muted">当前用户：管理员</span>
-                <span class="text-muted ms-3" id="currentTime"></span>
+                <h2>节点管理</h2>
+                <div class="meta">筛选、维护冷链节点基础信息</div>
             </div>
-        </div>
+            <div class="meta" id="currentTime"></div>
+        </section>
 
-        <div class="search-box">
-            <form id="searchForm">
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <label class="form-label">节点名称</label>
-                        <input type="text" class="form-control" id="nodeName" placeholder="请输入节点名称">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">节点类型</label>
-                        <select class="form-select" id="nodeType">
-                            <option value="">全部类型</option>
-                            <option value="supplier">供应商</option>
-                            <option value="warehouse">仓库</option>
-                            <option value="transit">运输节点</option>
-                            <option value="store">门店</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">状态</label>
-                        <select class="form-select" id="status">
-                            <option value="">全部状态</option>
-                            <option value="1">正常</option>
-                            <option value="0">停用</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4 d-flex align-items-end gap-2">
-                        <button type="submit" class="btn btn-primary flex-fill">
-                            <i class="bi bi-search"></i> 查询
-                        </button>
-                        <button type="button" class="btn btn-secondary" onclick="resetForm()">
-                            <i class="bi bi-arrow-clockwise"></i> 重置
-                        </button>
-                    </div>
+        <section class="panel">
+            <form id="searchForm" class="form-grid">
+                <div class="field">
+                    <label for="nodeName">节点名称</label>
+                    <input id="nodeName" name="nodeName" placeholder="输入节点名称">
+                </div>
+                <div class="field">
+                    <label for="nodeType">节点类型</label>
+                    <select id="nodeType" name="nodeType">
+                        <option value="">全部类型</option>
+                        <option value="supplier">供应商</option>
+                        <option value="warehouse">仓库</option>
+                        <option value="transit">中转节点</option>
+                        <option value="store">门店</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="status">状态</label>
+                    <select id="status" name="status">
+                        <option value="">全部状态</option>
+                        <option value="1">正常</option>
+                        <option value="0">停用</option>
+                    </select>
+                </div>
+                <div class="actions">
+                    <button class="btn btn-primary" type="submit">查询</button>
+                    <button class="btn btn-secondary" type="button" id="resetBtn">重置</button>
                 </div>
             </form>
-        </div>
+        </section>
 
-        <div class="table-box">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="mb-0"><i class="bi bi-list-task"></i> 节点列表</h5>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModal" onclick="openAddModal()">
-                    <i class="bi bi-plus-lg"></i> 新增节点
-                </button>
+        <section class="panel">
+            <div class="panel-header">
+                <h3>节点列表</h3>
+                <button class="btn btn-primary" type="button" id="openAddBtn">新增节点</button>
             </div>
-            <table class="table table-hover">
-                <thead>
+            <div class="table-wrap">
+                <table>
+                    <thead>
                     <tr>
                         <th>节点编码</th>
                         <th>节点名称</th>
@@ -169,284 +80,225 @@
                         <th>地址</th>
                         <th>负责人</th>
                         <th>电话</th>
-                        <th>当前温度</th>
+                        <th>温度</th>
                         <th>状态</th>
                         <th>操作</th>
                     </tr>
-                </thead>
-                <tbody id="nodeTable">
-                </tbody>
-            </table>
-            <nav>
-                <ul class="pagination" id="pagination">
-                </ul>
-            </nav>
-        </div>
-    </div>
-
-    <div class="modal fade" id="editModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitle"><i class="bi bi-plus-lg"></i> 新增节点</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="editForm">
-                        <input type="hidden" id="editId">
-                        <div class="mb-3">
-                            <label class="form-label">节点编码 <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="editNodeCode" placeholder="请输入节点编码" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">节点名称 <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="editNodeName" placeholder="请输入节点名称" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">节点类型 <span class="text-danger">*</span></label>
-                            <select class="form-select" id="editNodeType" required>
-                                <option value="">请选择节点类型</option>
-                                <option value="farm">种植基地</option>
-                                <option value="warehouse">仓库</option>
-                                <option value="transport">运输车辆</option>
-                                <option value="processing">加工厂</option>
-                                <option value="market">市场</option>
-                                <option value="retail">零售终端</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">地址</label>
-                            <input type="text" class="form-control" id="editAddress" placeholder="请输入地址">
-                        </div>
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">负责人</label>
-                                <input type="text" class="form-control" id="editManager" placeholder="请输入负责人">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">电话</label>
-                                <input type="text" class="form-control" id="editPhone" placeholder="请输入电话">
-                            </div>
-                        </div>
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">当前温度(℃)</label>
-                                <input type="number" step="0.1" class="form-control" id="editTemperature" placeholder="请输入当前温度">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">状态</label>
-                                <select class="form-select" id="editStatus">
-                                    <option value="1">正常</option>
-                                    <option value="0">停用</option>
-                                </select>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-primary" onclick="submitEdit()">确定</button>
-                </div>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
             </div>
+            <div class="pagination" id="pagination"></div>
+        </section>
+    </main>
+</div>
+
+<dialog id="editDialog">
+    <div class="dialog-body">
+        <div class="dialog-header">
+            <h3 id="dialogTitle">新增节点</h3>
+            <button class="btn btn-ghost btn-sm" type="button" data-close="editDialog">关闭</button>
+        </div>
+        <form id="editForm" class="form-grid">
+            <input type="hidden" id="id" name="id">
+            <div class="field">
+                <label for="nodeCode">节点编码</label>
+                <input id="nodeCode" name="nodeCode" placeholder="输入节点编码">
+            </div>
+            <div class="field">
+                <label for="nodeNameField">节点名称</label>
+                <input id="nodeNameField" name="nodeName" placeholder="输入节点名称">
+            </div>
+            <div class="field">
+                <label for="nodeTypeField">节点类型</label>
+                <select id="nodeTypeField" name="nodeType">
+                    <option value="">请选择节点类型</option>
+                    <option value="supplier">供应商</option>
+                    <option value="warehouse">仓库</option>
+                    <option value="transit">中转节点</option>
+                    <option value="store">门店</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="address">地址</label>
+                <input id="address" name="address" placeholder="输入地址">
+            </div>
+            <div class="field">
+                <label for="manager">负责人</label>
+                <input id="manager" name="manager" placeholder="输入负责人">
+            </div>
+            <div class="field">
+                <label for="phone">电话</label>
+                <input id="phone" name="phone" placeholder="输入电话">
+            </div>
+            <div class="field">
+                <label for="temperature">温度</label>
+                <input id="temperature" name="temperature" type="number" step="0.01">
+            </div>
+            <div class="field">
+                <label for="statusField">状态</label>
+                <select id="statusField" name="status">
+                    <option value="1">正常</option>
+                    <option value="0">停用</option>
+                </select>
+            </div>
+        </form>
+        <div class="dialog-actions">
+            <button class="btn btn-secondary" type="button" data-close="editDialog">取消</button>
+            <button class="btn btn-primary" type="button" id="saveBtn">保存</button>
         </div>
     </div>
+</dialog>
 
-    <script>
-        const API_BASE = '/api';
-        axios.defaults.baseURL = API_BASE;
+<script src="/assets/common.js"></script>
+<script>
+    const state = { pageNum: 1, pageSize: 10 };
 
-        let currentPage = 1;
-        let pageSize = 10;
-        let total = 0;
+    function typeBadge(type) {
+        const map = {
+            supplier: '<span class="badge badge-success">供应商</span>',
+            warehouse: '<span class="badge badge-primary">仓库</span>',
+            transit: '<span class="badge badge-warning">中转节点</span>',
+            store: '<span class="badge badge-primary">门店</span>',
+        };
+        return map[type] || Common.escapeHtml(type || "-");
+    }
 
-        function updateTime() {
-            const now = new Date();
-            document.getElementById('currentTime').textContent = now.toLocaleString('zh-CN');
+    function statusBadge(status) {
+        return Number(status) === 1
+            ? '<span class="badge badge-success">正常</span>'
+            : '<span class="badge badge-warning">停用</span>';
+    }
+
+    function collectSearch() {
+        const form = document.getElementById("searchForm");
+        return {
+            pageNum: state.pageNum,
+            pageSize: state.pageSize,
+            nodeName: form.nodeName.value,
+            nodeType: form.nodeType.value,
+            status: form.status.value,
+        };
+    }
+
+    async function loadTable() {
+        const page = await Common.get("/node/page", collectSearch());
+        const tbody = document.getElementById("tableBody");
+        const records = page.records || [];
+        if (!records.length) {
+            tbody.innerHTML = '<tr><td colspan="9" class="empty">暂无数据</td></tr>';
+        } else {
+            tbody.innerHTML = records.map((item) => `
+                <tr>
+                    <td><span class="badge badge-primary">${Common.escapeHtml(item.nodeCode)}</span></td>
+                    <td>${Common.escapeHtml(item.nodeName)}</td>
+                    <td>${typeBadge(item.nodeType)}</td>
+                    <td>${Common.escapeHtml(item.address || "-")}</td>
+                    <td>${Common.escapeHtml(item.manager || "-")}</td>
+                    <td>${Common.escapeHtml(item.phone || "-")}</td>
+                    <td>${item.temperature === null || item.temperature === undefined ? "-" : `${Common.formatNumber(item.temperature)}℃`}</td>
+                    <td>${statusBadge(item.status)}</td>
+                    <td>
+                        <div class="table-actions">
+                            <button class="btn btn-secondary btn-sm" type="button" onclick="editNode(${item.id})">编辑</button>
+                            <button class="btn btn-danger btn-sm" type="button" onclick="deleteNode(${item.id})">删除</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join("");
         }
-        setInterval(updateTime, 1000);
-        updateTime();
-
-        function getNodeTypeText(type) {
-            const map = {
-                'supplier': '<span class="badge badge-success">供应商</span>',
-                'warehouse': '<span class="badge badge-info">仓库</span>',
-                'transit': '<span class="badge badge-warning">运输节点</span>',
-                'store': '<span class="badge badge-info">门店</span>'
-            };
-            return map[type] || type;
-        }
-
-        function getStatusText(status) {
-            const map = {
-                1: '<span class="badge badge-success">正常</span>',
-                '1': '<span class="badge badge-success">正常</span>',
-                0: '<span class="badge badge-secondary">停用</span>',
-                '0': '<span class="badge badge-secondary">停用</span>'
-            };
-            return map[status] || status;
-        }
-
-        function getTempClass(temp) {
-            if (temp === null || temp === undefined) return '';
-            if (temp < 0 || temp > 10) return 'temp-danger';
-            if (temp < 2 || temp > 8) return 'temp-warning';
-            return 'temp-normal';
-        }
-
-        async function loadNodeList() {
-            try {
-                const params = {
-                    pageNum: currentPage,
-                    pageSize: pageSize,
-                    nodeName: document.getElementById('nodeName').value,
-                    nodeType: document.getElementById('nodeType').value,
-                    status: document.getElementById('status').value
-                };
-                const res = await axios.get('/node/page', { params });
-                const data = res.data.data;
-                total = data.total;
-                const records = data.records || [];
-                const tbody = document.getElementById('nodeTable');
-                tbody.innerHTML = records.map(item => `
-                    <tr>
-                        <td><span class="badge badge-info">${item.nodeCode}</span></td>
-                        <td>${item.nodeName}</td>
-                        <td>${getNodeTypeText(item.nodeType)}</td>
-                        <td>${item.address || '-'}</td>
-                        <td>${item.manager || '-'}</td>
-                        <td>${item.phone || '-'}</td>
-                        <td class="${getTempClass(item.temperature)}">
-                            <i class="bi bi-thermometer-half"></i>
-                            ${item.temperature !== null && item.temperature !== undefined ? item.temperature + '℃' : '-'}
-                        </td>
-                        <td>${getStatusText(item.status)}</td>
-                        <td>
-                            <button class="btn btn-sm btn-info" onclick="openEditModal(${item.id})">
-                                <i class="bi bi-pencil"></i> 编辑
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteNode(${item.id})">
-                                <i class="bi bi-trash"></i> 删除
-                            </button>
-                        </td>
-                    </tr>
-                `).join('') || '<tr><td colspan="9" class="text-center text-muted">暂无数据</td></tr>';
-                renderPagination();
-            } catch (e) {
-                console.error('加载节点列表失败', e);
-                alert('加载节点列表失败：' + (e.response?.data?.message || e.message));
-            }
-        }
-
-        function renderPagination() {
-            const totalPages = Math.ceil(total / pageSize);
-            const pagination = document.getElementById('pagination');
-            if (!pagination) return;
-            let html = '';
-            html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="javascript:goPage(${currentPage - 1})">上一页</a></li>`;
-            for (let i = 1; i <= totalPages; i++) {
-                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
-                    html += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="javascript:goPage(${i})">${i}</a></li>`;
-                } else if (i === currentPage - 3 || i === currentPage + 3) {
-                    html += '<li class="page-item disabled"><span class="page-link">...</span></li>';
-                }
-            }
-            html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="javascript:goPage(${currentPage + 1})">下一页</a></li>`;
-            pagination.innerHTML = html;
-        }
-
-        function goPage(page) {
-            if (page < 1) return;
-            currentPage = page;
-            loadNodeList();
-        }
-
-        function openAddModal() {
-            document.getElementById('modalTitle').innerHTML = '<i class="bi bi-plus-lg"></i> 新增节点';
-            document.getElementById('editId').value = '';
-            document.getElementById('editForm').reset();
-            document.getElementById('editStatus').value = '1';
-        }
-
-        async function openEditModal(id) {
-            try {
-                const res = await axios.get('/node/detail?id=' + id);
-                const data = res.data.data;
-                document.getElementById('modalTitle').innerHTML = '<i class="bi bi-pencil"></i> 编辑节点';
-                document.getElementById('editId').value = data.id;
-                document.getElementById('editNodeCode').value = data.nodeCode;
-                document.getElementById('editNodeName').value = data.nodeName;
-                document.getElementById('editNodeType').value = data.nodeType;
-                document.getElementById('editAddress').value = data.address || '';
-                document.getElementById('editManager').value = data.manager || '';
-                document.getElementById('editPhone').value = data.phone || '';
-                document.getElementById('editTemperature').value = data.temperature;
-                document.getElementById('editStatus').value = data.status;
-                new bootstrap.Modal(document.getElementById('editModal')).show();
-            } catch (e) {
-                console.error('加载节点详情失败', e);
-            }
-        }
-
-        async function submitEdit() {
-            const form = document.getElementById('editForm');
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
-            const id = document.getElementById('editId').value;
-            try {
-                const data = {
-                    nodeCode: document.getElementById('editNodeCode').value,
-                    nodeName: document.getElementById('editNodeName').value,
-                    nodeType: document.getElementById('editNodeType').value,
-                    address: document.getElementById('editAddress').value,
-                    manager: document.getElementById('editManager').value,
-                    phone: document.getElementById('editPhone').value,
-                    temperature: document.getElementById('editTemperature').value,
-                    status: document.getElementById('editStatus').value
-                };
-                if (id) {
-                    data.id = id;
-                    await axios.put('/node/update', data);
-                } else {
-                    await axios.post('/node/add', data);
-                }
-                alert(id ? '修改成功' : '新增成功');
-                bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
-                loadNodeList();
-            } catch (e) {
-                console.error('提交失败', e);
-                alert('提交失败：' + (e.response?.data?.message || e.message));
-            }
-        }
-
-        async function deleteNode(id) {
-            if (!confirm('确定要删除该节点吗？')) return;
-            try {
-                await axios.delete('/node/delete?id=' + id);
-                alert('删除成功');
-                loadNodeList();
-            } catch (e) {
-                console.error('删除失败', e);
-                alert('删除失败：' + (e.response?.data?.message || e.message));
-            }
-        }
-
-        function resetForm() {
-            document.getElementById('searchForm').reset();
-            currentPage = 1;
-            loadNodeList();
-        }
-
-        document.getElementById('searchForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            currentPage = 1;
-            loadNodeList();
+        Common.renderPager(document.getElementById("pagination"), page, (pageNum) => {
+            state.pageNum = pageNum;
+            loadTable().catch(showError);
         });
+    }
 
-        (async function init() {
-            await loadNodeList();
-        })();
-    </script>
+    async function saveNode() {
+        const form = document.getElementById("editForm");
+        const body = {
+            nodeCode: form.nodeCode.value.trim(),
+            nodeName: Common.must(form.nodeName.value.trim(), "请输入节点名称"),
+            nodeType: Common.must(form.nodeType.value, "请选择节点类型"),
+            address: form.address.value.trim(),
+            manager: form.manager.value.trim(),
+            phone: form.phone.value.trim(),
+            temperature: form.temperature.value === "" ? null : Number(form.temperature.value),
+            status: Number(form.status.value || 1),
+        };
+        if (form.id.value) {
+            body.id = Number(form.id.value);
+            await Common.put("/node/update", body);
+        } else {
+            await Common.post("/node/add", body);
+        }
+        Common.closeDialog("editDialog");
+        form.reset();
+        state.pageNum = 1;
+        await loadTable();
+        alert("保存成功");
+    }
+
+    async function editNode(id) {
+        const data = await Common.get("/node/detail", { id });
+        const form = document.getElementById("editForm");
+        document.getElementById("dialogTitle").textContent = "编辑节点";
+        Common.fillForm(form, {
+            id: data.id,
+            nodeCode: data.nodeCode,
+            nodeName: data.nodeName,
+            nodeType: data.nodeType,
+            address: data.address,
+            manager: data.manager,
+            phone: data.phone,
+            temperature: data.temperature,
+            status: data.status,
+        });
+        Common.openDialog("editDialog");
+    }
+
+    async function deleteNode(id) {
+        if (!confirm("确认删除该节点？")) {
+            return;
+        }
+        await Common.del("/node/delete", { id });
+        await loadTable();
+        alert("删除成功");
+    }
+
+    function showError(error) {
+        alert(error.message || "操作失败");
+    }
+
+    document.getElementById("searchForm").addEventListener("submit", (event) => {
+        event.preventDefault();
+        state.pageNum = 1;
+        loadTable().catch(showError);
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+        document.getElementById("searchForm").reset();
+        state.pageNum = 1;
+        loadTable().catch(showError);
+    });
+
+    document.getElementById("openAddBtn").addEventListener("click", () => {
+        document.getElementById("dialogTitle").textContent = "新增节点";
+        const form = document.getElementById("editForm");
+        form.reset();
+        form.status.value = "1";
+        Common.openDialog("editDialog");
+    });
+
+    document.getElementById("saveBtn").addEventListener("click", () => {
+        saveNode().catch(showError);
+    });
+
+    document.querySelectorAll("[data-close]").forEach((button) => {
+        button.addEventListener("click", () => Common.closeDialog(button.dataset.close));
+    });
+
+    Common.setClock();
+    loadTable().catch(showError);
+</script>
 </body>
 </html>

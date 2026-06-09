@@ -21,8 +21,10 @@ public class ProductController {
 
     @ApiOperation("获取产品列表")
     @GetMapping("/list")
-    public Result<List<Product>> list() {
-        return Result.success(productService.list());
+    public Result<List<Product>> list(
+            @ApiParam("产品名称") @RequestParam(required = false) String productName,
+            @ApiParam("分类") @RequestParam(required = false) String category) {
+        return Result.success(productService.list(productName, category));
     }
 
     @ApiOperation("获取产品详情")

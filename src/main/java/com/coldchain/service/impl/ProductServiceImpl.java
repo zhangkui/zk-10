@@ -29,6 +29,19 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     }
 
     @Override
+    public List<Product> list(String productName, String category) {
+        LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
+        if (productName != null && !productName.isBlank()) {
+            wrapper.like(Product::getProductName, productName.trim());
+        }
+        if (category != null && !category.isBlank()) {
+            wrapper.eq(Product::getCategory, category.trim());
+        }
+        wrapper.orderByDesc(Product::getCreateTime);
+        return baseMapper.selectList(wrapper);
+    }
+
+    @Override
     public PageResult<Product> page(PageQueryDTO dto) {
         Page<Product> page = new Page<>(dto.getPageNum(), dto.getPageSize());
         LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
