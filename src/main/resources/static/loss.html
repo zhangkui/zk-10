@@ -31,7 +31,10 @@
                 <h2>损耗记录</h2>
                 <div class="meta">登记损耗、跟踪处理状态并跳转归因分析</div>
             </div>
-            <div class="meta" id="currentTime"></div>
+            <div class="d-flex align-items-center">
+                <div class="meta me-3" id="currentTime"></div>
+                <div id="userInfo"></div>
+            </div>
         </section>
 
         <section class="panel">
@@ -332,6 +335,8 @@
         button.addEventListener("click", () => Common.closeDialog(button.dataset.close));
     });
 
+    Common.checkLogin();
+    Common.renderUserInfo();
     Common.setClock();
     Promise.all([loadBatches(), loadNodes(), loadUsers()]).then(loadTable).catch(showError);
 </script>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 农产品冷链损耗归因分析系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            max-width: 900px;
+            width: 100%;
+        }
+        .login-left {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .login-left h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        .login-left p {
+            font-size: 1rem;
+            opacity: 0.9;
+            line-height: 1.8;
+        }
+        .login-right {
+            padding: 60px 50px;
+        }
+        .login-right h3 {
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .login-right .subtitle {
+            color: #999;
+            margin-bottom: 40px;
+        }
+        .form-floating {
+            margin-bottom: 20px;
+        }
+        .btn-login {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(17, 153, 142, 0.3);
+        }
+        .icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="row g-0">
+            <div class="col-md-5">
+                <div class="login-left">
+                    <i class="bi bi-snow icon"></i>
+                    <h2>农产品冷链<br>损耗归因分析系统</h2>
+                    <p>实现批次流转记录、损耗节点标记、责任归因分析、统计报表和可视化追溯，助力冷链物流高效管理。</p>
+                </div>
+            </div>
+            <div class="col-md-7">
+                <div class="login-right">
+                    <h3>欢迎回来</h3>
+                    <p class="subtitle">请登录您的账户</p>
+                    <form id="loginForm">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="username" placeholder="用户名" required>
+                            <label for="username"><i class="bi bi-person me-2"></i>用户名</label>
+                        </div>
+                        <div class="form-floating">
+                            <input type="password" class="form-control" id="password" placeholder="密码" required>
+                            <label for="password"><i class="bi bi-lock me-2"></i>密码</label>
+                        </div>
+                        <div class="mb-4">
+                            <small class="text-muted">默认账号: admin / admin123</small>
+                        </div>
+                        <button type="submit" class="btn btn-login btn-primary w-100 text-white">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>登 录
+                        </button>
+                    </form>
+                    <div id="errorMsg" class="alert alert-danger mt-3" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/common.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errorMsg = document.getElementById('errorMsg');
+            
+            if (!username || !password) {
+                showError('请输入用户名和密码');
+                return;
+            }
+            
+            try {
+                const params = new URLSearchParams();
+                params.append('username', username);
+                params.append('password', password);
+                
+                const response = await fetch('/api/user/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    credentials: 'include',
+                    body: params.toString()
+                });
+                
+                const result = await response.json();
+                
+                if (result.code === 200) {
+                    localStorage.setItem('currentUser', JSON.stringify(result.data));
+                    window.location.href = 'index.html';
+                } else {
+                    showError(result.msg || '登录失败');
+                }
+            } catch (error) {
+                showError('网络错误，请稍后重试');
+            }
+        });
+        
+        function showError(msg) {
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.textContent = msg;
+            errorMsg.style.display = 'block';
+            setTimeout(() => {
+                errorMsg.style.display = 'none';
+            }, 3000);
+        }
+        
+        if (localStorage.getItem('currentUser')) {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

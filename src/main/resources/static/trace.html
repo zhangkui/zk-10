@@ -31,7 +31,10 @@
                 <h2>追溯链路</h2>
                 <div class="meta">查看批次基础信息、流转、损耗和归因时间线</div>
             </div>
-            <div class="meta" id="currentTime"></div>
+            <div class="d-flex align-items-center">
+                <div class="meta me-3" id="currentTime"></div>
+                <div id="userInfo"></div>
+            </div>
         </section>
 
         <section class="panel">
@@ -187,6 +190,8 @@
         loadTrace().catch(showError);
     });
 
+    Common.checkLogin();
+    Common.renderUserInfo();
     Common.setClock();
     loadBatches().catch(showError);
 </script>

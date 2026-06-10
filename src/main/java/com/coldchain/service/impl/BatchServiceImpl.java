@@ -90,25 +90,31 @@ public class BatchServiceImpl extends ServiceImpl<BatchMapper, Batch> implements
     @Override
     public PageResult<Map<String, Object>> getBatchDetailPage(BatchQueryDTO dto) {
         Page<Map<String, Object>> page = new Page<>(dto.getPageNum(), dto.getPageSize());
-        LambdaQueryWrapper<Batch> wrapper = new LambdaQueryWrapper<>();
+        QueryWrapper<Batch> wrapper = new QueryWrapper<>();
         if (dto.getBatchNo() != null && !dto.getBatchNo().isBlank()) {
-            wrapper.like(Batch::getBatchNo, dto.getBatchNo().trim());
+            wrapper.like("b.batch_no", dto.getBatchNo().trim());
         }
         if (dto.getProductId() != null) {
-            wrapper.eq(Batch::getProductId, dto.getProductId());
+            wrapper.eq("b.product_id", dto.getProductId());
         }
         if (dto.getStatus() != null && !dto.getStatus().isBlank()) {
-            wrapper.eq(Batch::getStatus, dto.getStatus().trim());
+            wrapper.eq("b.status", dto.getStatus().trim());
         }
         if (dto.getStartDate() != null && !dto.getStartDate().isBlank()) {
-            LocalDateTime startDateTime = LocalDateTime.of(LocalDate.parse(dto.getStartDate()), LocalTime.MIN);
-            wrapper.ge(Batch::getCreateTime, startDateTime);
+            try {
+                LocalDateTime startDateTime = LocalDateTime.of(LocalDate.parse(dto.getStartDate()), LocalTime.MIN);
+                wrapper.ge("b.create_time", startDateTime);
+            } catch (Exception ignored) {
+            }
         }
         if (dto.getEndDate() != null && !dto.getEndDate().isBlank()) {
-            LocalDateTime endDateTime = LocalDateTime.of(LocalDate.parse(dto.getEndDate()), LocalTime.MAX);
-            wrapper.le(Batch::getCreateTime, endDateTime);
+            try {
+                LocalDateTime endDateTime = LocalDateTime.of(LocalDate.parse(dto.getEndDate()), LocalTime.MAX);
+                wrapper.le("b.create_time", endDateTime);
+            } catch (Exception ignored) {
+            }
         }
-        wrapper.orderByDesc(Batch::getCreateTime);
+        wrapper.orderByDesc("b.create_time");
         Page<Map<String, Object>> result = (Page<Map<String, Object>>) baseMapper.selectBatchDetailPage(page, wrapper);
         return PageResult.of(result.getTotal(), result.getCurrent(), result.getSize(), result.getRecords());
     }

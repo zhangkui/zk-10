@@ -31,7 +31,10 @@
                 <h2>流转记录</h2>
                 <div class="meta">查询批次流转轨迹并登记新的流转记录</div>
             </div>
-            <div class="meta" id="currentTime"></div>
+            <div class="d-flex align-items-center">
+                <div class="meta me-3" id="currentTime"></div>
+                <div id="userInfo"></div>
+            </div>
         </section>
 
         <section class="panel">
@@ -267,6 +270,8 @@
         button.addEventListener("click", () => Common.closeDialog(button.dataset.close));
     });
 
+    Common.checkLogin();
+    Common.renderUserInfo();
     Common.setClock();
     Promise.all([loadNodes(), loadBatches(), loadUsers()]).then(loadTable).catch(showError);
 </script>

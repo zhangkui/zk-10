@@ -31,7 +31,10 @@
                 <h2>归因分析</h2>
                 <div class="meta">查看归因结果，支持自动分析并新增归因记录</div>
             </div>
-            <div class="meta" id="currentTime"></div>
+            <div class="d-flex align-items-center">
+                <div class="meta me-3" id="currentTime"></div>
+                <div id="userInfo"></div>
+            </div>
         </section>
 
         <section class="panel">
@@ -373,6 +376,8 @@
         button.addEventListener("click", () => Common.closeDialog(button.dataset.close));
     });
 
+    Common.checkLogin();
+    Common.renderUserInfo();
     Common.setClock();
     Promise.all([loadLosses(), loadUsers()]).then(loadTable).catch(showError);
 </script>

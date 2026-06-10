@@ -31,7 +31,10 @@
                 <h2>数据概览</h2>
                 <div class="meta">展示冷链批次、损耗和归因的核心统计</div>
             </div>
-            <div class="meta" id="currentTime"></div>
+            <div class="d-flex align-items-center">
+                <div class="meta me-3" id="currentTime"></div>
+                <div id="userInfo"></div>
+            </div>
         </section>
 
         <section class="cards">
@@ -208,6 +211,8 @@
         alert(error.message || "加载失败");
     }
 
+    Common.checkLogin();
+    Common.renderUserInfo();
     Common.setClock();
     Promise.all([
         loadOverview(),
